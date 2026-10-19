@@ -5,7 +5,6 @@ from flask import Flask, request, jsonify, render_template_string
 
 app = Flask(__name__)
 
-# RENDERIZA A INTERFACE WEB ESCURA COMPATÍVEL COM O DESIGN DO SEU TKINTER ORIGINAL
 HTML_INTERFACE = """
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -37,7 +36,7 @@ HTML_INTERFACE = """
 </div>
 
 <script>
-function ejecutarFluxoPythonWeb() {
+function executarFluxoPythonWeb() {
     const inputTelefone = document.getElementById('telefone').value.trim();
     const statusDiv = document.getElementById('statusMsg');
     const botao = document.getElementById('btnGerar');
@@ -52,7 +51,6 @@ function ejecutarFluxoPythonWeb() {
     statusDiv.innerText = "Status: Gerando teste no painel...";
     statusDiv.style.color = "#f9e2af";
 
-    // Envia o número para o backend Flask processar a chamada requests
     fetch('/gerar-teste', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -64,15 +62,16 @@ function ejecutarFluxoPythonWeb() {
             statusDiv.innerText = "Status: Abrindo o WhatsApp...";
             statusDiv.style.color = "#a6e3a1";
             window.location.href = data.url_whatsapp;
+            botao.disabled = false;
         } else {
-            statusDiv.innerText = "Status: Erro no painel.";
+            statusDiv.innerText = "Status: Erro verificado.";
             statusDiv.style.color = "#f38ba8";
-            alert("Erro do Servidor: " + data.erro);
+            alert("ALERTA DO PAINEL:\\n" + data.erro);
             botao.disabled = false;
         }
     })
     .catch(err => {
-        statusDiv.innerText = "Status: Falha na conexão.";
+        statusDiv.innerText = "Status: Falha na conexão com o Render.";
         statusDiv.style.color = "#f38ba8";
         botao.disabled = false;
     });
@@ -96,42 +95,41 @@ def gerar_teste():
         num_cliente = "55" + num_cliente
 
     url_painel = "https://clubinfinity.info"
-    headers = {
-        "User-Agent": "BotBot.Chat"
-    }
+    headers = { "User-Agent": "BotBot.Chat" }
 
     try:
-        # EXECUTA EXATAMENTE O SEU REQUESTS QUE DEU CERTO NO COMPUTADOR LOCAL
-        resposta = requests.get(url_painel, headers=headers, timeout=15)
+        # Tenta conectar e captura o erro técnico real se falhar
+        resposta = requests.get(url_painel, headers=headers, timeout=12)
         
         if resposta.status_code == 200:
-            dados_json = resposta.json()
-            
-            usuario = str(dados_json.get("username", "Gerado"))
-            senha = str(dados_json.get("password", "Gerado"))
-            
-            # Formatação idêntica da mensagem IPTV
-            mensagem_whatsapp = (
-                f"*Aqui está o seu Teste IPTV/P2P Gerado!* 🚀\n\n"
-                f"🔐 *DADOS DE ACESSO:*\n"
-                f"👤 *Usuário:* {usuario}\n"
-                f"🔑 *Senha:* {senha}\n\n"
-                f"🌐 *ASSISTIR NO NAVEGADOR (WebPlayer):*\n"
-                f"👉 Acesse: http://conectstar.sbs\n"
-                f"_(Basta digitar seu usuário e senha no site acima para assistir direto pelo celular ou computador!)_\n\n"
-                f"📱 *LINK M3U (Para Aplicativos):*\n"
-                f"http://royal3.fun{usuario}&password={senha}&type=m3u_plus&output=m3u8\n\n"
-                f"⏱️ *Validade do teste:* 4 Horas"
-            )
-            
-            # Codifica a string de texto para formato URL para abrir nativamente no navegador/app wa.me
-            url_final_whatsapp = f"https://wa.me{num_cliente}?text={requests.utils.quote(mensagem_whatsapp)}"
-            return jsonify({"sucesso": True, "url_whatsapp": url_final_whatsapp})
+            try:
+                dados_json = resposta.json()
+                usuario = str(dados_json.get("username", "Gerado"))
+                senha = str(dados_json.get("password", "Gerado"))
+                
+                mensagem_whatsapp = (
+                    f"*Aqui está o seu Teste IPTV/P2P Gerado!* 🚀\\n\\n"
+                    f"🔐 *DADOS DE ACESSO:*\\n"
+                    f"👤 *Usuário:* {usuario}\\n"
+                    f"🔑 *Senha:* {senha}\\n\\n"
+                    f"🌐 *ASSISTIR NO NAVEGADOR (WebPlayer):*\\n"
+                    f"👉 Acesse: http://conectstar.sbs\\n"
+                    f"_(Basta digitar seu usuário e senha no site acima para assistir direto pelo celular ou computador!)_\\n\\n"
+                    f"📱 *LINK M3U (Para Aplicativos):*\\n"
+                    f"http://royal3.fun{usuario}&password={senha}&type=m3u_plus&output=m3u8\\n\\n"
+                    f"⏱️ *Validade do teste:* 4 Horas"
+                )
+                
+                url_final_whatsapp = f"https://wa.me{num_cliente}?text={requests.utils.quote(mensagem_whatsapp)}"
+                return jsonify({"sucesso": True, "url_whatsapp": url_final_whatsapp})
+            except Exception:
+                # Se cair aqui, o painel não retornou um JSON (provavelmente retornou uma página HTML comum)
+                return jsonify({"sucesso": False, "erro": f"O painel retornou uma página HTML em vez de um JSON de dados. Texto inicial: {resposta.text[:100]}"})
         else:
-            return jsonify({"sucesso": False, "erro": f"O painel retornou o erro {resposta.status_code}."})
+            return jsonify({"sucesso": False, "erro": f"Código HTTP {resposta.status_code} recebido do painel."})
 
     except Exception as e:
-        return jsonify({"sucesso": False, "erro": str(e)})
+        return jsonify({"sucesso": False, "erro": f"Não foi possível conectar ao link: {str(e)}"})
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
