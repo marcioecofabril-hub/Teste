@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TESTE MDS - Gerador Automático</title>
+    <title>TESTE MDS - Modo de Teste</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -85,25 +85,11 @@
         button:hover {
             background-color: #2073f7;
         }
-        button:disabled {
-            background-color: #f38ba8 !important;
-            cursor: not-allowed;
-        }
         .status {
             margin-top: 15px;
             font-size: 14px;
             font-style: italic;
             font-weight: bold;
-        }
-        .erro-bloqueio {
-            color: #f38ba8;
-            background-color: rgba(243, 139, 168, 0.1);
-            padding: 12px;
-            border-radius: 6px;
-            border: 1px solid #f38ba8;
-            margin-top: 15px;
-            display: none;
-            font-size: 13px;
         }
     </style>
 </head>
@@ -113,7 +99,7 @@
     <div class="logo-box">TESTE MDS</div>
     
     <h2>Solicitar Teste IPTV</h2>
-    <p>Insira seu WhatsApp abaixo para receber o seu teste gratuito de 4 hours imediatamente!</p>
+    <p>MODO DE TESTE ATIVADO (Sem travas de IP/Dispositivo)</p>
     
     <div id="formularioArea">
         <div class="input-group">
@@ -125,31 +111,10 @@
     </div>
     
     <div id="statusMsg" class="status"></div>
-    <div id="msgBloqueio" class="erro-bloqueio">
-        ❌ <b>Acesso Negado:</b> Você já gerou um teste grátis hoje neste dispositivo. Não é permitido gerar múltiplos acessos.
-    </div>
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-    verificarBloqueio();
-});
-
-function verificarBloqueio() {
-    const jaGerou = localStorage.getItem("mds_iptv_block");
-    if (jaGerou === "true") {
-        document.getElementById("btnGerar").disabled = true;
-        document.getElementById("telefone").disabled = true;
-        document.getElementById("msgBloqueio").style.display = "block";
-        document.getElementById("statusMsg").innerText = "";
-        return true;
-    }
-    return false;
-}
-
 async function solicitarTeste() {
-    if (verificarBloqueio()) return;
-
     const inputTelefone = document.getElementById('telefone').value.trim();
     const statusDiv = document.getElementById('statusMsg');
     const botao = document.getElementById('btnGerar');
@@ -171,43 +136,43 @@ async function solicitarTeste() {
     statusDiv.style.color = "#f9e2af";
 
     try {
-        // Correção de engenharia: Novo proxy profissional e URL limpa direta como texto puro
+        // Link direto do seu painel clonado exatamente da foto
         const linkPainelReal = "https://clubinfinity.info";
-        const urlProxy = "https://corsproxy.io/?" + encodeURIComponent(linkPainelReal);
+        const urlProxy = "https://corsproxy.io?" + encodeURIComponent(linkPainelReal);
         
         const resposta = await fetch(urlProxy);
-        if (!resposta.ok) throw new Error("rede");
         
-        const textoChatbot = await resposta.text(); // Lê como texto puro de forma direta do chatbot
+        if (!resposta.ok) {
+            throw new Error("HTTP_ERROR_" + resposta.status);
+        }
+        
+        const textoChatbot = await resposta.text();
 
-        // Proteção caso o painel retorne aviso de falta de limites
-        if (textoChatbot.includes("sem crédito") || textoChatbot.includes("Erro") || textoChatbot.length < 15) {
-            throw new Error("painel_sem_credito");
+        if (!textoChatbot || textoChatbot.length < 10) {
+            throw new Error("PAINEL_RETORNOU_VAZIO");
         }
 
-        statusDiv.innerText = "Status: Teste criado! Gravando segurança...";
+        statusDiv.innerText = "Status: Teste criado! Redirecionando...";
         statusDiv.style.color = "#a6e3a1";
-
-        // Trava o dispositivo após o sucesso
-        localStorage.setItem("mds_iptv_block", "true");
 
         setTimeout(() => {
             const urlWhatsapp = `https://wa.me{numCliente}?text=${encodeURIComponent(textoChatbot)}`;
             window.location.href = urlWhatsapp;
-            verificarBloqueio();
+            
+            // Restaura o botão para você continuar testando infinitamente
+            botao.disabled = false;
+            botao.style.backgroundColor = "#1e66f5";
+            statusDiv.innerText = "Status: Pronto para novo teste.";
         }, 1200);
 
     } catch (erro) {
-        statusDiv.innerText = "Status: Erro ao gerar no painel.";
+        statusDiv.innerText = "Status: Falha na conexão.";
         statusDiv.style.color = "#f38ba8";
         botao.disabled = false;
         botao.style.backgroundColor = "#1e66f5";
         
-        if (erro.message === "painel_sem_credito") {
-            alert("Atenção: O painel não gerou o texto. Verifique se a sua revenda possui créditos de teste disponíveis!");
-        } else {
-            alert("Ocorreu um erro na ponte de comunicação. Salve as alterações no GitHub e tente abrir o link oficial do Render.");
-        }
+        // Alerta técnico detalhado para descobrirmos o culpado
+        alert("Detalhes do erro técnico: " + erro.message + "\n\nSe aparecer HTTP_ERROR_404 ou 500, o link do seu painel mudou ou está sem créditos.");
     }
 }
 </script>
