@@ -5,6 +5,7 @@ from flask import Flask, request, jsonify, render_template_string
 
 app = Flask(__name__)
 
+# RENDERIZA A INTERFACE WEB ESCURA COMPATÍVEL COM O DESIGN DO SEU TKINTER ORIGINAL
 HTML_INTERFACE = """
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -31,12 +32,12 @@ HTML_INTERFACE = """
         <label for="telefone">Digite o WhatsApp do Cliente (com DDD):</label>
         <input type="tel" id="telefone" placeholder="Ex: 11951559263" value="11951559263">
     </div>
-    <button id="btnGerar" onclick="executarFluxoPythonWeb()">Gerar Teste e Enviar via WhatsApp</button>
+    <button id="btnGerar" onclick="ejecutarFluxoPythonWeb()">Gerar Teste e Enviar via WhatsApp</button>
     <div id="statusMsg" class="status">Status: Aguardando comando...</div>
 </div>
 
 <script>
-function executarFluxoPythonWeb() {
+function ejecutarFluxoPythonWeb() {
     const inputTelefone = document.getElementById('telefone').value.trim();
     const statusDiv = document.getElementById('statusMsg');
     const botao = document.getElementById('btnGerar');
@@ -94,37 +95,23 @@ def gerar_teste():
     if not num_cliente.startswith("55"):
         num_cliente = "55" + num_cliente
 
-    url_painel = "https://clubinfinity.info"
+    # SEU LINK DE API DO CHATBOT ATUALIZADO SEM ERROS
+    url_painel = "https://clubinfinity.info/api/chatbot/ayb1Bjp1PR/kg516V41jl"
     headers = { "User-Agent": "BotBot.Chat" }
 
     try:
-        # Tenta conectar e captura o erro técnico real se falhar
+        # O backend Python faz a busca segura simulando o comportamento local do seu computador
         resposta = requests.get(url_painel, headers=headers, timeout=12)
         
         if resposta.status_code == 200:
-            try:
-                dados_json = resposta.json()
-                usuario = str(dados_json.get("username", "Gerado"))
-                senha = str(dados_json.get("password", "Gerado"))
-                
-                mensagem_whatsapp = (
-                    f"*Aqui está o seu Teste IPTV/P2P Gerado!* 🚀\\n\\n"
-                    f"🔐 *DADOS DE ACESSO:*\\n"
-                    f"👤 *Usuário:* {usuario}\\n"
-                    f"🔑 *Senha:* {senha}\\n\\n"
-                    f"🌐 *ASSISTIR NO NAVEGADOR (WebPlayer):*\\n"
-                    f"👉 Acesse: http://conectstar.sbs\\n"
-                    f"_(Basta digitar seu usuário e senha no site acima para assistir direto pelo celular ou computador!)_\\n\\n"
-                    f"📱 *LINK M3U (Para Aplicativos):*\\n"
-                    f"http://royal3.fun{usuario}&password={senha}&type=m3u_plus&output=m3u8\\n\\n"
-                    f"⏱️ *Validade do teste:* 4 Horas"
-                )
-                
-                url_final_whatsapp = f"https://wa.me{num_cliente}?text={requests.utils.quote(mensagem_whatsapp)}"
-                return jsonify({"sucesso": True, "url_whatsapp": url_final_whatsapp})
-            except Exception:
-                # Se cair aqui, o painel não retornou um JSON (provavelmente retornou uma página HTML comum)
-                return jsonify({"sucesso": False, "erro": f"O painel retornou uma página HTML em vez de um JSON de dados. Texto inicial: {resposta.text[:100]}"})
+            texto_gerado = resposta.text
+            
+            if not texto_gerado or len(texto_gerado) < 10:
+                return jsonify({"sucesso": False, "erro": "O painel respondeu um texto vazio. Verifique se possui créditos ativos!"})
+
+            # Monta o redirecionamento com o texto de credenciais retornado na origem
+            url_final_whatsapp = f"https://wa.me{num_cliente}?text={requests.utils.quote(texto_gerado)}"
+            return jsonify({"sucesso": True, "url_whatsapp": url_final_whatsapp})
         else:
             return jsonify({"sucesso": False, "erro": f"Código HTTP {resposta.status_code} recebido do painel."})
 
