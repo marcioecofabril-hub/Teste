@@ -24,7 +24,6 @@
             width: 90%;
             max-width: 400px;
         }
-        /* --- ESTILIZAÇÃO DO LOGOTIPO --- */
         .logo-box {
             background: linear-gradient(135deg, #1e66f5, #8839ef);
             color: white;
@@ -111,7 +110,6 @@
 <body>
 
 <div class="container">
-    <!-- LOGO SOLICITADO -->
     <div class="logo-box">TESTE MDS</div>
     
     <h2>Solicitar Teste IPTV</h2>
@@ -133,7 +131,6 @@
 </div>
 
 <script>
-// REGRA ANTIFRAUDE: Executa assim que a página abre no dispositivo do cliente
 document.addEventListener("DOMContentLoaded", () => {
     verificarBloqueio();
 });
@@ -141,7 +138,6 @@ document.addEventListener("DOMContentLoaded", () => {
 function verificarBloqueio() {
     const jaGerou = localStorage.getItem("mds_iptv_block");
     if (jaGerou === "true") {
-        // Trava o botão e esconde os campos se ele já tiver usado
         document.getElementById("btnGerar").disabled = true;
         document.getElementById("telefone").disabled = true;
         document.getElementById("msgBloqueio").style.display = "block";
@@ -152,7 +148,6 @@ function verificarBloqueio() {
 }
 
 async function solicitarTeste() {
-    // Dupla checagem de segurança antes de disparar
     if (verificarBloqueio()) return;
 
     const inputTelefone = document.getElementById('telefone').value.trim();
@@ -176,39 +171,30 @@ async function solicitarTeste() {
     statusDiv.style.color = "#f9e2af";
 
     try {
-        const urlPainel = "https://api.allorigins.win/get?url=" + encodeURIComponent("https://clubinfinity.info");
+        // Mudança crítica: Acessamos a API e lemos o retorno como texto puro do chatbot
+        const urlPainel = "https://allorigins.win" + encodeURIComponent("https://clubinfinity.info/api/chatbot/ayb1Bjp1PR/kg516V41jl/");
         
         const resposta = await fetch(urlPainel);
         if (!resposta.ok) throw new Error();
         
         const dadosBrutos = await resposta.json();
-        const dadosJson = JSON.parse(dadosBrutos.contents);
-        
-        const usuario = dadosJson.username || "Gerado";
-        const senha = dadosJson.password || "Gerado";
+        const textoChatbot = dadosBrutos.contents; // Aqui está o texto com usuário e senha gerados pelo painel
 
-        const mensagem = `*Aqui está o seu Teste IPTV/P2P Gerado!* 🚀\n\n` +
-                         `🔐 *DADOS DE ACESSO:*\n` +
-                         `👤 *Usuário:* ${usuario}\n` +
-                         `🔑 *Senha:* ${senha}\n\n` +
-                         `🌐 *ASSISTIR NO NAVEGADOR (WebPlayer):*\n` +
-                         `👉 Acesse: http://conectstar.sbs\n` +
-                         `_(Basta digitar seu usuário e senha no site acima para assistir direto pelo celular ou computador!)_\n\n` +
-                         `📱 *LINK M3U (Para Aplicativos):*\n` +
-                         `http://royal3.fun${usuario}&password=${senha}&type=m3u_plus&output=m3u8\n\n` +
-                         `⏱️ *Validade do teste:* 4 Horas`;
+        // Se o painel estiver sem créditos, ele avisa no texto
+        if (textoChatbot.includes("sem crédito") || textoChatbot.includes("Erro")) {
+            throw new Error("painel_sem_credito");
+        }
 
         statusDiv.innerText = "Status: Teste criado! Gravando segurança...";
         statusDiv.style.color = "#a6e3a1";
 
-        // --- ATIVA O BLOQUEIO DEFINITIVO NO DISPOSITIVO DO CLIENTE ---
+        // Ativa a trava antifraude no dispositivo do cliente
         localStorage.setItem("mds_iptv_block", "true");
 
         setTimeout(() => {
-            const urlWhatsapp = `https://wa.me{numCliente}?text=${encodeURIComponent(mensagem)}`;
+            // Abre o WhatsApp enviando o texto completo gerado pelo seu painel de forma direta
+            const urlWhatsapp = `https://wa.me{numCliente}?text=${encodeURIComponent(textoChatbot)}`;
             window.location.href = urlWhatsapp;
-            
-            // Recarrega a página para aplicar a tela de bloqueio visual imediatamente
             verificarBloqueio();
         }, 1500);
 
@@ -217,7 +203,12 @@ async function solicitarTeste() {
         statusDiv.style.color = "#f38ba8";
         botao.disabled = false;
         botao.style.backgroundColor = "#1e66f5";
-        alert("Não foi possível gerar automaticamente agora. O painel pode estar sem créditos ou offline.");
+        
+        if (erro.message === "painel_sem_credito") {
+            alert("O sistema está temporariamente indisponível por falta de limites. Fale com o administrador.");
+        } else {
+            alert("Não foi possível gerar automaticamente agora. Verifique a conexão com o painel.");
+        }
     }
 }
 </script>
