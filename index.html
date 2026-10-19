@@ -113,7 +113,7 @@
     <div class="logo-box">TESTE MDS</div>
     
     <h2>Solicitar Teste IPTV</h2>
-    <p>Insira seu WhatsApp abaixo para receber o seu teste gratuito de 4 horas imediatamente!</p>
+    <p>Insira seu WhatsApp abaixo para receber o seu teste gratuito de 4 hours imediatamente!</p>
     
     <div id="formularioArea">
         <div class="input-group">
@@ -171,32 +171,31 @@ async function solicitarTeste() {
     statusDiv.style.color = "#f9e2af";
 
     try {
-        // Mudança crítica: Acessamos a API e lemos o retorno como texto puro do chatbot
-        const urlPainel = "https://allorigins.win" + encodeURIComponent("https://clubinfinity.info/api/chatbot/ayb1Bjp1PR/kg516V41jl/");
+        // Correção de engenharia: Novo proxy profissional e URL limpa direta como texto puro
+        const linkPainelReal = "https://clubinfinity.info";
+        const urlProxy = "https://corsproxy.io/?" + encodeURIComponent(linkPainelReal);
         
-        const resposta = await fetch(urlPainel);
-        if (!resposta.ok) throw new Error();
+        const resposta = await fetch(urlProxy);
+        if (!resposta.ok) throw new Error("rede");
         
-        const dadosBrutos = await resposta.json();
-        const textoChatbot = dadosBrutos.contents; // Aqui está o texto com usuário e senha gerados pelo painel
+        const textoChatbot = await resposta.text(); // Lê como texto puro de forma direta do chatbot
 
-        // Se o painel estiver sem créditos, ele avisa no texto
-        if (textoChatbot.includes("sem crédito") || textoChatbot.includes("Erro")) {
+        // Proteção caso o painel retorne aviso de falta de limites
+        if (textoChatbot.includes("sem crédito") || textoChatbot.includes("Erro") || textoChatbot.length < 15) {
             throw new Error("painel_sem_credito");
         }
 
         statusDiv.innerText = "Status: Teste criado! Gravando segurança...";
         statusDiv.style.color = "#a6e3a1";
 
-        // Ativa a trava antifraude no dispositivo do cliente
+        // Trava o dispositivo após o sucesso
         localStorage.setItem("mds_iptv_block", "true");
 
         setTimeout(() => {
-            // Abre o WhatsApp enviando o texto completo gerado pelo seu painel de forma direta
             const urlWhatsapp = `https://wa.me{numCliente}?text=${encodeURIComponent(textoChatbot)}`;
             window.location.href = urlWhatsapp;
             verificarBloqueio();
-        }, 1500);
+        }, 1200);
 
     } catch (erro) {
         statusDiv.innerText = "Status: Erro ao gerar no painel.";
@@ -205,9 +204,9 @@ async function solicitarTeste() {
         botao.style.backgroundColor = "#1e66f5";
         
         if (erro.message === "painel_sem_credito") {
-            alert("O sistema está temporariamente indisponível por falta de limites. Fale com o administrador.");
+            alert("Atenção: O painel não gerou o texto. Verifique se a sua revenda possui créditos de teste disponíveis!");
         } else {
-            alert("Não foi possível gerar automaticamente agora. Verifique a conexão com o painel.");
+            alert("Ocorreu um erro na ponte de comunicação. Salve as alterações no GitHub e tente abrir o link oficial do Render.");
         }
     }
 }
