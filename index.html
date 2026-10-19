@@ -2,9 +2,225 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Minha Página de Teste</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TESTE MDS - Gerador Automático</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #1e1e2e;
+            color: #cdd6f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #252538;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+        }
+        /* --- ESTILIZAÇÃO DO LOGOTIPO --- */
+        .logo-box {
+            background: linear-gradient(135deg, #1e66f5, #8839ef);
+            color: white;
+            font-size: 26px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            padding: 12px;
+            border-radius: 8px;
+            display: inline-block;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(30, 102, 245, 0.4);
+        }
+        h2 {
+            color: #ffffff;
+            margin-bottom: 5px;
+            font-size: 20px;
+        }
+        p {
+            color: #a6adc8;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #a6adc8;
+            font-size: 14px;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #45475a;
+            background-color: #313244;
+            color: #cdd6f4;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input:focus {
+            outline: none;
+            border-color: #1e66f5;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: #1e66f5;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background-color: #2073f7;
+        }
+        button:disabled {
+            background-color: #f38ba8 !important;
+            cursor: not-allowed;
+        }
+        .status {
+            margin-top: 15px;
+            font-size: 14px;
+            font-style: italic;
+            font-weight: bold;
+        }
+        .erro-bloqueio {
+            color: #f38ba8;
+            background-color: rgba(243, 139, 168, 0.1);
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #f38ba8;
+            margin-top: 15px;
+            display: none;
+            font-size: 13px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Minha página de teste funcionou!</h1>
+
+<div class="container">
+    <!-- LOGO SOLICITADO -->
+    <div class="logo-box">TESTE MDS</div>
+    
+    <h2>Solicitar Teste IPTV</h2>
+    <p>Insira seu WhatsApp abaixo para receber o seu teste gratuito de 4 horas imediatamente!</p>
+    
+    <div id="formularioArea">
+        <div class="input-group">
+            <label for="telefone">WhatsApp com DDD (Somente números):</label>
+            <input type="tel" id="telefone" placeholder="Ex: 11951559263">
+        </div>
+        
+        <button id="btnGerar" onclick="solicitarTeste()">Gerar meu Teste e Receber</button>
+    </div>
+    
+    <div id="statusMsg" class="status"></div>
+    <div id="msgBloqueio" class="erro-bloqueio">
+        ❌ <b>Acesso Negado:</b> Você já gerou um teste grátis hoje neste dispositivo. Não é permitido gerar múltiplos acessos.
+    </div>
+</div>
+
+<script>
+// REGRA ANTIFRAUDE: Executa assim que a página abre no dispositivo do cliente
+document.addEventListener("DOMContentLoaded", () => {
+    verificarBloqueio();
+});
+
+function verificarBloqueio() {
+    const jaGerou = localStorage.getItem("mds_iptv_block");
+    if (jaGerou === "true") {
+        // Trava o botão e esconde os campos se ele já tiver usado
+        document.getElementById("btnGerar").disabled = true;
+        document.getElementById("telefone").disabled = true;
+        document.getElementById("msgBloqueio").style.display = "block";
+        document.getElementById("statusMsg").innerText = "";
+        return true;
+    }
+    return false;
+}
+
+async function solicitarTeste() {
+    // Dupla checagem de segurança antes de disparar
+    if (verificarBloqueio()) return;
+
+    const inputTelefone = document.getElementById('telefone').value.trim();
+    const statusDiv = document.getElementById('statusMsg');
+    const botao = document.getElementById('btnGerar');
+    
+    let numCliente = inputTelefone.replace(/\D/g, '');
+    
+    if (!numCliente || numCliente.length < 10) {
+        alert("Por favor, digite um número de WhatsApp válido com DDD.");
+        return;
+    }
+    
+    if (!numCliente.startsWith("55")) {
+        numCliente = "55" + numCliente;
+    }
+
+    botao.disabled = true;
+    botao.style.backgroundColor = "#45475a";
+    statusDiv.innerText = "Status: Conectando ao painel e gerando teste...";
+    statusDiv.style.color = "#f9e2af";
+
+    try {
+        const urlPainel = "https://api.allorigins.win/get?url=" + encodeURIComponent("https://clubinfinity.info");
+        
+        const resposta = await fetch(urlPainel);
+        if (!resposta.ok) throw new Error();
+        
+        const dadosBrutos = await resposta.json();
+        const dadosJson = JSON.parse(dadosBrutos.contents);
+        
+        const usuario = dadosJson.username || "Gerado";
+        const senha = dadosJson.password || "Gerado";
+
+        const mensagem = `*Aqui está o seu Teste IPTV/P2P Gerado!* 🚀\n\n` +
+                         `🔐 *DADOS DE ACESSO:*\n` +
+                         `👤 *Usuário:* ${usuario}\n` +
+                         `🔑 *Senha:* ${senha}\n\n` +
+                         `🌐 *ASSISTIR NO NAVEGADOR (WebPlayer):*\n` +
+                         `👉 Acesse: http://conectstar.sbs\n` +
+                         `_(Basta digitar seu usuário e senha no site acima para assistir direto pelo celular ou computador!)_\n\n` +
+                         `📱 *LINK M3U (Para Aplicativos):*\n` +
+                         `http://royal3.fun${usuario}&password=${senha}&type=m3u_plus&output=m3u8\n\n` +
+                         `⏱️ *Validade do teste:* 4 Horas`;
+
+        statusDiv.innerText = "Status: Teste criado! Gravando segurança...";
+        statusDiv.style.color = "#a6e3a1";
+
+        // --- ATIVA O BLOQUEIO DEFINITIVO NO DISPOSITIVO DO CLIENTE ---
+        localStorage.setItem("mds_iptv_block", "true");
+
+        setTimeout(() => {
+            const urlWhatsapp = `https://wa.me{numCliente}?text=${encodeURIComponent(mensagem)}`;
+            window.location.href = urlWhatsapp;
+            
+            // Recarrega a página para aplicar a tela de bloqueio visual imediatamente
+            verificarBloqueio();
+        }, 1500);
+
+    } catch (erro) {
+        statusDiv.innerText = "Status: Erro ao gerar no painel.";
+        statusDiv.style.color = "#f38ba8";
+        botao.disabled = false;
+        botao.style.backgroundColor = "#1e66f5";
+        alert("Não foi possível gerar automaticamente agora. O painel pode estar sem créditos ou offline.");
+    }
+}
+</script>
+
 </body>
 </html>
