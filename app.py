@@ -15,7 +15,9 @@ def mp_token():
     token = os.environ.get("MP_ACCESS_TOKEN", "").strip()
 
     if not token:
-        raise RuntimeError("MP_ACCESS_TOKEN nao configurado")
+        raise RuntimeError(
+            "MP_ACCESS_TOKEN nao configurado"
+        )
 
     return token
 
@@ -33,16 +35,24 @@ def home():
     if request.method == "GET":
         return render_template("pay_simple.html")
 
-    name = (request.form.get("name") or "").strip()[:80]
-    email = (request.form.get("email") or "").strip().lower()
+    nome = (
+        request.form.get("name") or ""
+    ).strip()[:80]
 
-    if not name:
+    email = (
+        request.form.get("email") or ""
+    ).strip().lower()[:150]
+
+    if not nome:
         return render_template(
             "pay_simple.html",
             error="Informe seu nome."
         ), 400
 
-    if "@" not in email:
+    if (
+        "@" not in email
+        or "." not in email.split("@")[-1]
+    ):
         return render_template(
             "pay_simple.html",
             error="Informe um e-mail válido."
@@ -52,16 +62,20 @@ def home():
         "transaction_amount": 10.00,
         "description": "Pagamento de serviço de TI",
         "payment_method_id": "pix",
-        "external_reference": f"MDS-TI-{uuid.uuid4().hex[:12]}",
+        "external_reference": (
+            f"MDS-TI-{uuid.uuid4().hex[:12]}"
+        ),
         "payer": {
             "email": email,
-            "first_name": name
+            "first_name": nome
         }
     }
 
     headers = mercado_pago_headers()
 
-    headers["X-Idempotency-Key"] = str(uuid.uuid4())
+    headers["X-Idempotency-Key"] = str(
+        uuid.uuid4()
+    )
 
     try:
         response = requests.post(
@@ -71,27 +85,37 @@ def home():
             timeout=20
         )
 
-        data = response.json()
-
     except requests.RequestException:
         return render_template(
             "pay_simple.html",
-            error="Não foi possível comunicar com o Mercado Pago."
+            error=(
+                "Não foi possível comunicar "
+                "com o Mercado Pago."
+            )
         ), 502
+
+    try:
+        data = response.json()
 
     except ValueError:
         return render_template(
             "pay_simple.html",
-            error="O Mercado Pago retornou uma resposta inválida."
+            error=(
+                "O Mercado Pago retornou "
+                "uma resposta inválida."
+            )
         ), 502
 
     if response.status_code not in (200, 201):
 
-        detail = data.get("message", "Pagamento não criado")
+        detalhe = data.get(
+            "message",
+            "Pagamento não criado."
+        )
 
         return render_template(
             "pay_simple.html",
-            error=f"Mercado Pago: {detail}"
+            error=f"Mercado Pago: {detalhe}"
         ), 400
 
     transaction_data = (
@@ -99,22 +123,38 @@ def home():
         .get("transaction_data") or {}
     )
 
-    qr_code = transaction_data.get("qr_code")
-    qr_base64 = transaction_data.get("qr_code_base64")
-    payment_id = str(data.get("id") or "")
+    qr_code = (
+        transaction_data.get("qr_code") or ""
+    ).strip()
+
+    qr_base64 = (
+        transaction_data.get(
+            "qr_code_base64"
+        ) or ""
+    ).strip()
+
+    payment_id = str(
+        data.get("id") or ""
+    ).strip()
 
     if not payment_id:
         return render_template(
             "message.html",
             title="Pagamento não identificado",
-            message="O Mercado Pago não retornou o ID do pagamento."
+            message=(
+                "O Mercado Pago não retornou "
+                "a identificação do pagamento."
+            )
         ), 502
 
     if not qr_code or not qr_base64:
         return render_template(
             "message.html",
             title="QR Code indisponível",
-            message="O Mercado Pago não retornou o QR Code."
+            message=(
+                "O Mercado Pago não retornou "
+                "o QR Code."
+            )
         ), 502
 
     return render_template(
@@ -130,53 +170,77 @@ def home():
 def payment_status(payment_id):
 
     if not payment_id.isdigit():
+
         return jsonify({
             "ok": False,
-            "error": "ID de pagamento inválido"
+            "error": "ID do pagamento inválido."
         }), 400
 
     try:
+
         response = requests.get(
             f"{MP_API}/v1/payments/{payment_id}",
             headers=mercado_pago_headers(),
             timeout=15
         )
 
-        data = response.json()
-
     except requests.RequestException:
+
         return jsonify({
             "ok": False,
-            "error": "Falha de comunicação com o Mercado Pago"
+            "error": (
+                "Não foi possível consultar "
+                "o Mercado Pago."
+            )
         }), 502
 
+    try:
+        data = response.json()
+
     except ValueError:
+
         return jsonify({
             "ok": False,
-            "error": "Resposta inválida do Mercado Pago"
+            "error": (
+                "Resposta inválida "
+                "do Mercado Pago."
+            )
         }), 502
 
     if response.status_code != 200:
+
         return jsonify({
             "ok": False,
             "error": data.get(
                 "message",
-                "Não foi possível consultar o pagamento"
+                "Pagamento não encontrado."
             )
         }), response.status_code
 
-    transaction_details = data.get("transaction_details") or {}
+    transaction_details = (
+        data.get("transaction_details") or {}
+    )
 
     return jsonify({
         "ok": True,
-        "payment_id": str(data.get("id")),
-        "status": data.get("status"),
-        "status_detail": data.get("status_detail"),
-        "transaction_amount": data.get("transaction_amount"),
-        "net_received_amount": transaction_details.get(
-            "net_received_amount"
+        "payment_id": str(
+            data.get("id") or ""
         ),
-        "date_approved": data.get("date_approved")
+        "status": data.get("status"),
+        "status_detail": data.get(
+            "status_detail"
+        ),
+        "transaction_amount": data.get(
+            "transaction_amount"
+        ),
+        "net_received_amount": (
+            transaction_details.get(
+                "net_received_amount"
+            )
+        ),
+        "date_approved": data.get(
+            "date_approved"
+        )
     }), 200
 
 
@@ -185,13 +249,17 @@ def health():
 
     return jsonify({
         "ok": True,
-        "time": datetime.now(timezone.utc).isoformat()
+        "time": datetime.now(
+            timezone.utc
+        ).isoformat()
     })
 
 
 if __name__ == "__main__":
 
-    port = int(os.environ.get("PORT", "5000"))
+    port = int(
+        os.environ.get("PORT", "5000")
+    )
 
     app.run(
         host="0.0.0.0",
