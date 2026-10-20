@@ -12,7 +12,10 @@ MP_API = "https://api.mercadopago.com"
 
 
 def mp_token():
-    token = os.environ.get("MP_ACCESS_TOKEN", "").strip()
+    token = os.environ.get(
+        "MP_ACCESS_TOKEN",
+        ""
+    ).strip()
 
     if not token:
         raise RuntimeError(
@@ -33,7 +36,9 @@ def mercado_pago_headers():
 def home():
 
     if request.method == "GET":
-        return render_template("pay_simple.html")
+        return render_template(
+            "pay_simple.html"
+        )
 
     nome = (
         request.form.get("name") or ""
@@ -60,7 +65,9 @@ def home():
 
     payload = {
         "transaction_amount": 10.00,
-        "description": "Pagamento de serviço de TI",
+        "description": (
+            "Pagamento de serviço de TI"
+        ),
         "payment_method_id": "pix",
         "external_reference": (
             f"MDS-TI-{uuid.uuid4().hex[:12]}"
@@ -106,54 +113,91 @@ def home():
             )
         ), 502
 
-    if response.status_code not in (200, 201):
-
+    if response.status_code not in (
+        200,
+        201
+    ):
         detalhe = data.get(
             "message",
             "Pagamento não criado."
         )
+
+        causas = data.get("cause")
+
+        if (
+            isinstance(causas, list)
+            and len(causas) > 0
+            and isinstance(causas[0], dict)
+        ):
+            detalhe = (
+                causas[0].get("description")
+                or causas[0].get("code")
+                or detalhe
+            )
 
         return render_template(
             "pay_simple.html",
             error=f"Mercado Pago: {detalhe}"
         ), 400
 
+    point_of_interaction = (
+        data.get("point_of_interaction")
+        or {}
+    )
+
     transaction_data = (
-        (data.get("point_of_interaction") or {})
-        .get("transaction_data") or {}
+        point_of_interaction.get(
+            "transaction_data"
+        )
+        or {}
     )
 
     qr_code = (
-        transaction_data.get("qr_code") or ""
+        transaction_data.get("qr_code")
+        or ""
     ).strip()
 
     qr_base64 = (
         transaction_data.get(
             "qr_code_base64"
-        ) or ""
+        )
+        or ""
     ).strip()
 
     payment_id = str(
-        data.get("id") or ""
+        data.get("id")
+        or ""
     ).strip()
 
     if not payment_id:
         return render_template(
             "message.html",
-            title="Pagamento não identificado",
+            title=(
+                "Pagamento não identificado"
+            ),
             message=(
                 "O Mercado Pago não retornou "
                 "a identificação do pagamento."
             )
         ), 502
 
-    if not qr_code or not qr_base64:
+    if not qr_code:
+        return render_template(
+            "message.html",
+            title="Código Pix indisponível",
+            message=(
+                "O Mercado Pago não retornou "
+                "o código Pix."
+            )
+        ), 502
+
+    if not qr_base64:
         return render_template(
             "message.html",
             title="QR Code indisponível",
             message=(
                 "O Mercado Pago não retornou "
-                "o QR Code."
+                "a imagem do QR Code."
             )
         ), 502
 
@@ -170,22 +214,24 @@ def home():
 def payment_status(payment_id):
 
     if not payment_id.isdigit():
-
         return jsonify({
             "ok": False,
-            "error": "ID do pagamento inválido."
+            "error": (
+                "ID do pagamento inválido."
+            )
         }), 400
 
     try:
-
         response = requests.get(
-            f"{MP_API}/v1/payments/{payment_id}",
+            (
+                f"{MP_API}/v1/payments/"
+                f"{payment_id}"
+            ),
             headers=mercado_pago_headers(),
             timeout=15
         )
 
     except requests.RequestException:
-
         return jsonify({
             "ok": False,
             "error": (
@@ -198,7 +244,6 @@ def payment_status(payment_id):
         data = response.json()
 
     except ValueError:
-
         return jsonify({
             "ok": False,
             "error": (
@@ -208,7 +253,6 @@ def payment_status(payment_id):
         }), 502
 
     if response.status_code != 200:
-
         return jsonify({
             "ok": False,
             "error": data.get(
@@ -218,7 +262,8 @@ def payment_status(payment_id):
         }), response.status_code
 
     transaction_details = (
-        data.get("transaction_details") or {}
+        data.get("transaction_details")
+        or {}
     )
 
     return jsonify({
@@ -255,10 +300,38 @@ def health():
     })
 
 
+@app.errorhandler(404)
+def page_not_found(error):
+
+    return render_template(
+        "message.html",
+        title="Página não encontrada",
+        message=(
+            "O endereço acessado não existe."
+        )
+    ), 404
+
+
+@app.errorhandler(500)
+def internal_error(error):
+
+    return render_template(
+        "message.html",
+        title="Erro interno",
+        message=(
+            "Não foi possível concluir "
+            "a solicitação."
+        )
+    ), 500
+
+
 if __name__ == "__main__":
 
     port = int(
-        os.environ.get("PORT", "5000")
+        os.environ.get(
+            "PORT",
+            "5000"
+        )
     )
 
     app.run(
