@@ -9,7 +9,10 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <meta name="theme-color" content="#071426">
+    <meta
+        name="theme-color"
+        content="#071426"
+    >
 
     <title>MDS_TI | Pagamento Pix</title>
 
@@ -66,9 +69,9 @@
 
             <p
                 style="
-                    margin: 0 0 18px;
-                    text-align: center;
+                    margin: 0 0 16px;
                     color: #475467;
+                    text-align: center;
                     font-size: 14px;
                     line-height: 1.5;
                 "
@@ -89,7 +92,7 @@
                 for="pix-code"
                 style="
                     display: block;
-                    margin: 20px 0 8px;
+                    margin: 18px 0 8px;
                     color: #344054;
                     font-size: 13px;
                     font-weight: 700;
@@ -103,46 +106,47 @@
                 id="pix-code"
                 readonly
                 spellcheck="false"
-            >{{ qr_code }}</textarea>
+                autocapitalize="off"
+                autocomplete="off"
+            ></textarea>
 
 
             <button
-                type="button"
                 id="copy-button"
+                type="button"
             >
-                📋 Copiar código Pix
+                <span id="copy-button-text">
+                    📋 Copiar código Pix
+                </span>
             </button>
 
 
             <div
-                id="copy-message"
+                id="copy-feedback"
+                aria-live="polite"
                 style="
-                    display: none;
-                    margin-top: 10px;
-                    padding: 10px;
-                    border-radius: 8px;
-                    background: #ecfdf3;
+                    min-height: 22px;
+                    margin-top: 8px;
                     color: #067647;
                     text-align: center;
-                    font-size: 13px;
+                    font-size: 12px;
                     font-weight: 700;
                 "
-            >
-                ✓ Código Pix copiado!
-            </div>
+            ></div>
 
 
             <div
                 id="payment-status"
                 class="pending"
+                aria-live="polite"
             >
                 Aguardando pagamento...
             </div>
 
 
             <button
-                type="button"
                 id="check-button"
+                type="button"
                 style="
                     margin-top: 12px;
                     background: #071426;
@@ -179,7 +183,7 @@
                     id="approved-value"
                     style="margin: 8px 0 0;"
                 >
-                    Pagamento recebido com sucesso.
+                    Pagamento recebido.
                 </p>
 
             </div>
@@ -191,6 +195,7 @@
                     display: none;
                     margin-top: 18px;
                     padding: 16px;
+                    border: 1px solid #fecdca;
                     border-radius: 12px;
                     background: #fef3f2;
                     color: #b42318;
@@ -221,8 +226,8 @@
                 <p
                     style="
                         margin: 0 0 12px;
-                        text-align: center;
                         color: #344054;
+                        text-align: center;
                         font-size: 14px;
                         font-weight: 700;
                     "
@@ -232,32 +237,38 @@
 
 
                 <input
-                    type="file"
                     id="receipt-input"
+                    type="file"
                     accept="image/*,.pdf"
-                    style="display: none;"
-                >
-
-
-                <button
-                    type="button"
-                    id="receipt-button"
                     style="
-                        margin-top: 0;
-                        background: #ffffff;
-                        color: #087cf0;
-                        border: 1px solid #087cf0;
-                        box-shadow: none;
+                        position: absolute;
+                        left: -9999px;
+                        width: 1px;
+                        height: 1px;
+                        opacity: 0;
                     "
                 >
-                    📎 Selecionar comprovante
-                </button>
 
 
-                <div
-                    id="receipt-info"
+                <label
+                    id="receipt-label"
+                    for="receipt-input"
                     style="
-                        display: none;
+                        width: 100%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        padding: 15px 18px;
+                        border: 1px solid #087cf0;
+                        border-radius: 12px;
+                        background: #ffffff;
+                        color: #087cf0;
+                        font-size: 15px;
+                        font-weight: 700;
+                        cursor: pointer;
+                    "
+                >
+                    📎 Selecionar lay: none;
                         margin-top: 10px;
                         padding: 11px;
                         border-radius: 9px;
@@ -265,13 +276,14 @@
                         color: #475467;
                         text-align: center;
                         font-size: 12px;
+                        overflow-wrap: anywhere;
                     "
                 ></div>
 
 
                 <button
-                    type="button"
                     id="share-button"
+                    type="button"
                     style="
                         display: none;
                         margin-top: 12px;
@@ -292,8 +304,7 @@
                 </div>
 
                 <p>
-                    Se estiver usando o mesmo celular,
-                    toque em
+                    No mesmo celular, toque em
                     <strong>Copiar código Pix</strong>
                     e cole no aplicativo do banco.
                 </p>
@@ -329,4 +340,637 @@
 
             <small>
                 Pagamento processado via Mercado Pago
-            </small
+            </small>
+
+        </footer>
+
+    </main>
+
+</div>
+
+
+<script>
+(function () {
+
+    "use strict";
+
+
+    /*
+     * O código exibido e o código copiado
+     * usam esta mesma variável.
+     */
+    const PIX_CODE =
+        {{ qr_code | tojson }};
+
+    const PAYMENT_ID =
+        {{ payment_id | tojson }};
+
+
+    const pixField =
+        document.getElementById(
+            "pix-code"
+        );
+
+    const copyButton =
+        document.getElementById(
+            "copy-button"
+        );
+
+    const copyButtonText =
+        document.getElementById(
+            "copy-button-text"
+        );
+
+    const copyFeedback =
+        document.getElementById(
+            "copy-feedback"
+        );
+
+    const checkButton =
+        document.getElementById(
+            "check-button"
+        );
+
+    const paymentStatus =
+        document.getElementById(
+            "payment-status"
+        );
+
+    const approvedBox =
+        document.getElementById(
+            "approved-box"
+        );
+
+    const approvedValue =
+        document.getElementById(
+            "approved-value"
+        );
+
+    const rejectedBox =
+        document.getElementById(
+            "rejected-box"
+        );
+
+    const rejectedMessage =
+        document.getElementById(
+            "rejected-message"
+        );
+
+    const receiptInput =
+        document.getElementById(
+            "receipt-input"
+        );
+
+    const receiptInfo =
+        document.getElementById(
+            "receipt-info"
+        );
+
+    const shareButton =
+        document.getElementById(
+            "share-button"
+        );
+
+
+    let selectedReceipt = null;
+    let checkingPayment = false;
+    let paymentFinished = false;
+
+
+    /*
+     * O campo recebe exatamente o mesmo
+     * valor que será copiado pelo botão.
+     */
+    pixField.value = PIX_CODE;
+
+
+    function showCopySuccess() {
+
+        copyButtonText.textContent =
+            "✓ Código Pix copiado!";
+
+        const ending =
+            PIX_CODE.slice(-12);
+
+        copyFeedback.textContent =
+            "Código copiado. Final: " +
+            ending;
+
+        copyFeedback.style.color =
+            "#067647";
+
+
+        setTimeout(function () {
+
+            copyButtonText.textContent =
+                "📋 Copiar código Pix";
+
+        }, 2500);
+    }
+
+
+    function showCopyError() {
+
+        copyFeedback.textContent =
+            "Cópia automática bloqueada. O código foi selecionado.";
+
+        copyFeedback.style.color =
+            "#b42318";
+    }
+
+
+    async function copyPix() {
+
+        if (!PIX_CODE) {
+
+            copyFeedback.textContent =
+                "Código Pix indisponível.";
+
+            copyFeedback.style.color =
+                "#b42318";
+
+            return;
+        }
+
+
+        try {
+
+            if (
+                navigator.clipboard &&
+                window.isSecureContext
+            ) {
+
+                await navigator
+                    .clipboard
+                    .writeText(
+                        PIX_CODE
+                    );
+
+                showCopySuccess();
+
+                return;
+            }
+
+        } catch (error) {
+
+            console.log(
+                "Clipboard API indisponível:",
+                error
+            );
+        }
+
+
+        const temporaryField =
+            document.createElement(
+                "textarea"
+            );
+
+        temporaryField.value =
+            PIX_CODE;
+
+        temporaryField.setAttribute(
+            "readonly",
+            ""
+        );
+
+        temporaryField.style.position =
+            "fixed";
+
+        temporaryField.style.left =
+            "-9999px";
+
+        temporaryField.style.top =
+            "0";
+
+        temporaryField.style.opacity =
+            "0";
+
+
+        document.body.appendChild(
+            temporaryField
+        );
+
+        temporaryField.focus();
+        temporaryField.select();
+
+        temporaryField.setSelectionRange(
+            0,
+            PIX_CODE.length
+        );
+
+
+        let copied = false;
+
+
+        try {
+
+            copied =
+                document.execCommand(
+                    "copy"
+                );
+
+        } catch (error) {
+
+            copied = false;
+        }
+
+
+        document.body.removeChild(
+            temporaryField
+        );
+
+
+        if (copied) {
+
+            showCopySuccess();
+
+        } else {
+
+            pixField.focus();
+            pixField.select();
+
+            pixField.setSelectionRange(
+                0,
+                PIX_CODE.length
+            );
+
+            showCopyError();
+        }
+    }
+
+
+    function formatMoney(value) {
+
+        if (
+            value === null ||
+            value === undefined ||
+            value === ""
+        ) {
+            return "";
+        }
+
+
+        return Number(value)
+            .toLocaleString(
+                "pt-BR",
+                {
+                    style: "currency",
+                    currency: "BRL"
+                }
+            );
+    }
+
+
+    async function checkPayment() {
+
+        if (
+            checkingPayment ||
+            paymentFinished
+        ) {
+            return;
+        }
+
+
+        checkingPayment = true;
+
+        checkButton.disabled = true;
+
+        paymentStatus.textContent =
+            "Consultando pagamento...";
+
+        paymentStatus.className =
+            "pending";
+
+
+        try {
+
+            const response =
+                await fetch(
+                    (
+                        "/api/status/" +
+                        encodeURIComponent(
+                            PAYMENT_ID
+                        ) +
+                        "?nocache=" +
+                        Date.now()
+                    ),
+                    {
+                        method: "GET",
+                        cache: "no-store",
+                        headers: {
+                            "Accept":
+                                "application/json"
+                        }
+                    }
+                );
+
+
+            let data = {};
+
+
+            try {
+
+                data =
+                    await response.json();
+
+            } catch (error) {
+
+                data = {};
+            }
+
+
+            if (
+                !response.ok ||
+                !data.ok
+            ) {
+
+                throw new Error(
+                    data.error ||
+                    "Falha na consulta."
+                );
+            }
+
+
+            if (
+                data.status === "approved"
+            ) {
+
+                paymentFinished = true;
+
+                paymentStatus.textContent =
+                    "✓ Pagamento aprovado!";
+
+                paymentStatus.className =
+                    "approved";
+
+                checkButton.style.display =
+                    "none";
+
+                rejectedBox.style.display =
+                    "none";
+
+                approvedBox.style.display =
+                    "block";
+
+
+                const amount =
+                    formatMoney(
+                        data.transaction_amount
+                    );
+
+
+                approvedValue.textContent =
+                    amount
+                        ? (
+                            "Valor pago: " +
+                            amount
+                        )
+                        : (
+                            "Pagamento recebido."
+                        );
+
+
+                return;
+            }
+
+
+            if (
+                data.status === "rejected"
+            ) {
+
+                paymentStatus.textContent =
+                    "Pagamento recusado.";
+
+                paymentStatus.className =
+                    "error";
+
+                rejectedBox.style.display =
+                    "block";
+
+                rejectedMessage.textContent =
+                    data.status_detail ||
+                    "O pagamento foi recusado.";
+
+            } else if (
+                data.status === "cancelled"
+            ) {
+
+                paymentStatus.textContent =
+                    "Pagamento cancelado.";
+
+                paymentStatus.className =
+                    "error";
+
+                rejectedBox.style.display =
+                    "block";
+
+                rejectedMessage.textContent =
+                    data.status_detail ||
+                    "O pagamento foi cancelado.";
+
+            } else {
+
+                paymentStatus.textContent =
+                    "Aguardando pagamento...";
+
+                paymentStatus.className =
+                    "pending";
+            }
+
+
+        } catch (error) {
+
+            paymentStatus.textContent =
+                "Não foi possível verificar agora.";
+
+            paymentStatus.className =
+                "error";
+
+            console.log(
+                "Erro na consulta:",
+                error
+            );
+
+        } finally {
+
+            checkingPayment = false;
+
+            if (!paymentFinished) {
+
+                checkButton.disabled =
+                    false;
+            }
+        }
+    }
+
+
+    function handleReceiptSelection() {
+
+        const file =
+            receiptInput.files[0];
+
+
+        if (!file) {
+
+            selectedReceipt = null;
+
+            receiptInfo.style.display =
+                "none";
+
+            shareButton.style.display =
+                "none";
+
+            return;
+        }
+
+
+        selectedReceipt = file;
+
+        receiptInfo.textContent =
+            "✓ Arquivo selecionado: " +
+            file.name;
+
+        receiptInfo.style.display =
+            "block";
+
+        shareButton.style.display =
+            "flex";
+    }
+
+
+    async function shareReceipt() {
+
+        if (!selectedReceipt) {
+
+            alert(
+                "Selecione o comprovante primeiro."
+            );
+
+            return;
+        }
+
+
+        const shareData = {
+            title: "Comprovante MDS_TI",
+            text: (
+                "Comprovante do pagamento "
+                + "MDS_TI - R$ 10,00"
+            ),
+            files: [
+                selectedReceipt
+            ]
+        };
+
+
+        try {
+
+            if (
+                navigator.share &&
+                navigator.canShare &&
+                navigator.canShare(
+                    shareData
+                )
+            ) {
+
+                await navigator.share(
+                    shareData
+                );
+
+            } else {
+
+                alert(
+                    "O arquivo foi selecionado, mas este navegador não permite compartilhar anexos diretamente. Abra o WhatsApp e envie o comprovante normalmente."
+                );
+            }
+
+        } catch (error) {
+
+            if (
+                error.name !== "AbortError"
+            ) {
+
+                alert(
+                    "Não foi possível compartilhar o comprovante."
+                );
+            }
+        }
+    }
+
+
+    copyButton.addEventListener(
+        "click",
+        copyPix
+    );
+
+
+    checkButton.addEventListener(
+        "click",
+        checkPayment
+    );
+
+
+    receiptInput.addEventListener(
+        "change",
+        handleReceiptSelection
+    );
+
+
+    shareButton.addEventListener(
+        "click",
+        shareReceipt
+    );
+
+
+    document.addEventListener(
+        "visibilitychange",
+        function () {
+
+            if (
+                document.visibilityState ===
+                "visible" &&
+                !paymentFinished
+            ) {
+
+                checkPayment();
+            }
+        }
+    );
+
+
+    window.addEventListener(
+        "focus",
+        function () {
+
+            if (!paymentFinished) {
+
+                checkPayment();
+            }
+        }
+    );
+
+
+    setTimeout(
+        checkPayment,
+        1200
+    );
+
+
+    setInterval(
+        function () {
+
+            if (!paymentFinished) {
+
+                checkPayment();
+            }
+
+        },
+        5000
+    );
+
+
+})();
+</script>
+
+</body>
+
+</html>
