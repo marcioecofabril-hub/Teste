@@ -1,0 +1,575 @@
+:root {
+    --primary: #087cf0;
+    --primary-dark: #0567c8;
+    --navy: #071426;
+    --navy-light: #10233d;
+
+    --background: #f3f7fb;
+    --text: #111827;
+    --text-light: #667085;
+    --border: #e4e7ec;
+
+    --success: #039855;
+    --success-bg: #ecfdf3;
+
+    --danger: #b42318;
+    --danger-bg: #fef3f2;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+
+    background:
+        radial-gradient(
+            circle at top,
+            #e8f3ff 0%,
+            #f5f8fc 42%,
+            #eef2f7 100%
+        );
+
+    color: var(--text);
+
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+}
+
+.page {
+    min-height: 100vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 24px 16px;
+}
+
+.payment-card {
+    width: 100%;
+    max-width: 470px;
+
+    overflow: hidden;
+
+    background: #ffffff;
+
+    border: 1px solid rgba(16, 24, 40, 0.06);
+    border-radius: 24px;
+
+    box-shadow:
+        0 24px 60px
+        rgba(16, 24, 40, 0.12);
+}
+
+/* =========================
+   CABEÇALHO MDS_TI
+   ========================= */
+
+.brand-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 22px 26px;
+
+    color: white;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--navy),
+            var(--navy-light)
+        );
+}
+
+.logo {
+    font-size: 23px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+.logo span {
+    color: #39a7ff;
+}
+
+.secure-badge {
+    padding: 7px 11px;
+
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 20px;
+
+    background: rgba(255, 255, 255, 0.08);
+
+    color: #dbeafe;
+
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* =========================
+   VALOR / PIX
+   ========================= */
+
+.hero {
+    padding: 31px 26px 20px;
+
+    text-align: center;
+}
+
+.pix-icon {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin: 0 auto 13px;
+
+    border-radius: 14px;
+
+    background: #e8f4ff;
+
+    color: var(--primary);
+
+    font-size: 24px;
+}
+
+.eyebrow {
+    margin: 0 0 5px;
+
+    color: var(--primary);
+
+    font-size: 11px;
+    font-weight: 800;
+
+    letter-spacing: 1.4px;
+}
+
+.hero h1 {
+    margin: 0;
+
+    color: var(--navy);
+
+    font-size: 42px;
+    font-weight: 800;
+
+    letter-spacing: -1px;
+}
+
+.description {
+    margin: 6px 0 0;
+
+    color: var(--text-light);
+
+    font-size: 15px;
+}
+
+.divider {
+    height: 1px;
+
+    margin: 0 26px;
+
+    background: var(--border);
+}
+
+/* =========================
+   FORMULÁRIO
+   ========================= */
+
+form {
+    padding: 12px 26px 8px;
+}
+
+.field {
+    margin-top: 17px;
+}
+
+.field label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #344054;
+
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.field input {
+    width: 100%;
+
+    padding: 13px 14px;
+
+    border: 1px solid #d0d5dd;
+    border-radius: 11px;
+
+    outline: none;
+
+    background: white;
+
+    color: var(--text);
+
+    font-size: 15px;
+
+    transition:
+        border-color 0.2s,
+        box-shadow 0.2s;
+}
+
+.field input::placeholder {
+    color: #98a2b3;
+}
+
+.field input:focus {
+    border-color: var(--primary);
+
+    box-shadow:
+        0 0 0 3px
+        rgba(8, 124, 240, 0.10);
+}
+
+/* =========================
+   RESUMO
+   ========================= */
+
+.summary {
+    margin-top: 20px;
+
+    padding: 15px;
+
+    border: 1px solid #edf0f3;
+    border-radius: 12px;
+
+    background: #f8fafc;
+}
+
+.summary div {
+    display: flex;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 5px 0;
+}
+
+.summary span {
+    color: var(--text-light);
+
+    font-size: 13px;
+}
+
+.summary strong {
+    color: #344054;
+
+    font-size: 13px;
+
+    text-align: right;
+}
+
+.summary .price {
+    color: var(--navy);
+
+    font-size: 15px;
+}
+
+/* =========================
+   BOTÃO
+   ========================= */
+
+button {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 10px;
+
+    margin-top: 18px;
+
+    padding: 15px 18px;
+
+    border: none;
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #087cf0,
+            #0569d1
+        );
+
+    box-shadow:
+        0 8px 18px
+        rgba(8, 124, 240, 0.22);
+
+    color: white;
+
+    font-size: 15px;
+    font-weight: 750;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.15s,
+        box-shadow 0.15s;
+}
+
+button:hover {
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 10px 22px
+        rgba(8, 124, 240, 0.27);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+.arrow {
+    font-size: 20px;
+}
+
+/* =========================
+   INFORMAÇÃO
+   ========================= */
+
+.info {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 10px;
+
+    margin: 14px 26px 25px;
+
+    padding: 13px;
+
+    border-radius: 12px;
+
+    background: var(--success-bg);
+}
+
+.info-icon {
+    width: 21px;
+    height: 21px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: var(--success);
+
+    color: white;
+
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.info p {
+    margin: 0;
+
+    color: #475467;
+
+    font-size: 12px;
+    line-height: 1.55;
+}
+
+/* =========================
+   ERROS
+   ========================= */
+
+.error {
+    margin: 18px 26px 0;
+
+    padding: 12px 14px;
+
+    border: 1px solid #fecdca;
+    border-radius: 10px;
+
+    background: var(--danger-bg);
+
+    color: var(--danger);
+
+    font-size: 13px;
+}
+
+/* =========================
+   RODAPÉ
+   ========================= */
+
+footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    padding: 19px 20px 22px;
+
+    border-top: 1px solid var(--border);
+
+    background: #fafbfc;
+}
+
+footer strong {
+    color: var(--navy);
+
+    font-size: 15px;
+
+    letter-spacing: 0.4px;
+}
+
+footer span {
+    margin-top: 2px;
+
+    color: var(--text-light);
+
+    font-size: 11px;
+}
+
+footer small {
+    margin-top: 10px;
+
+    color: #98a2b3;
+
+    font-size: 10px;
+}
+
+/* =========================
+   TELA DO QR CODE
+   ========================= */
+
+.qr {
+    display: block;
+
+    width: 260px;
+    max-width: 85%;
+
+    margin: 20px auto;
+
+    padding: 10px;
+
+    border: 1px solid var(--border);
+    border-radius: 16px;
+
+    background: white;
+}
+
+textarea {
+    width: 100%;
+    min-height: 105px;
+
+    padding: 12px;
+
+    border: 1px solid var(--border);
+    border-radius: 11px;
+
+    resize: none;
+
+    background: #f8fafc;
+
+    color: #344054;
+
+    font-family:
+        Consolas,
+        Monaco,
+        monospace;
+
+    font-size: 11px;
+    line-height: 1.45;
+
+    word-break: break-all;
+}
+
+.pending,
+.approved {
+    margin-top: 17px;
+
+    padding: 13px;
+
+    border-radius: 11px;
+
+    text-align: center;
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.pending {
+    background: #fffaeb;
+
+    color: #b54708;
+}
+
+.approved {
+    background: var(--success-bg);
+
+    color: var(--success);
+}
+
+/* =========================
+   CELULAR
+   ========================= */
+
+@media (max-width: 520px) {
+
+    .page {
+        padding: 0;
+
+        align-items: flex-start;
+    }
+
+    .payment-card {
+        min-height: 100vh;
+
+        border: none;
+        border-radius: 0;
+
+        box-shadow: none;
+    }
+
+    .brand-header {
+        padding: 19px 20px;
+    }
+
+    .hero {
+        padding: 27px 20px 18px;
+    }
+
+    .hero h1 {
+        font-size: 39px;
+    }
+
+    form {
+        padding: 10px 20px 8px;
+    }
+
+    .divider {
+        margin: 0 20px;
+    }
+
+    .info {
+        margin: 14px 20px 22px;
+    }
+
+    .error {
+        margin: 17px 20px 0;
+    }
+
+}
