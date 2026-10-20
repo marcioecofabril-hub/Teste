@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#071426"
+    >
+
+    <title>MDS_TI | {{ title }}</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body>
+
+    <div class="page">
+
+        <main class="payment-card">
+
+            <header class="brand-header">
+
+                <div class="logo">
+                    MDS<span>_TI</span>
+                </div>
+
+                <div class="secure-badge">
+                    Atendimento seguro
+                </div>
+
+            </header>
+
+
+            <section class="hero">
+
+                <div
+                    class="pix-icon"
+                    style="
+                        background: #fff4ed;
+                        color: #e04f16;
+                    "
+                >
+                    !
+                </div>
+
+                <p class="eyebrow">
+                    INFORMAÇÃO DO PAGAMENTO
+                </p>
+
+                <h1
+                    style="
+                        font-size: 27px;
+                        letter-spacing: -0.5px;
+                    "
+                >
+                    {{ title }}
+                </h1>
+
+                <p class="description">
+                    {{ message }}
+                </p>
+
+            </section>
+
+
+            <div class="divider"></div>
+
+
+            <section
+                style="
+                    padding: 24px 26px 28px;
+                "
+            >
+
+                <div
+                    class="info"
+                    style="
+                        margin: 0 0 20px;
+                        background: #f8fafc;
+                    "
+                >
+
+                    <div
+                        class="info-icon"
+                        style="
+                            background: #087cf0;
+                        "
+                    >
+                        i
+                    </div>
+
+                    <p>
+                        Verifique os dados informados e tente novamente.
+                        Caso o problema continue, entre em contato com a
+                        <strong>MDS_TI</strong>.
+                    </p>
+
+                </div>
+
+
+                <a
+                    href="/"
+                    style="
+                        width: 100%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        padding: 15px 18px;
+                        border-radius: 12px;
+                        background: linear-gradient(
+                            135deg,
+                            #087cf0,
+                            #0569d1
+                        );
+                        box-shadow: 0 8px 18px
+                            rgba(8, 124, 240                   font-size: 15px;
+                        font-weight: 700;
+                        text-decoration: none;
+                    "
+                >
+                    Voltar para o pagamento
+                </a>
+
+            </section>
+
+
+            <footer>
+
+                <strong>
+                    MDS_TI
+                </strong>
+
+                <span>
+                    Soluções em Tecnologia
+                </span>
+
+                <small>
+                    Pagamento processado via Mercado Pago
+                </small>
+
+            </footer>
+
+        </main>
+
+    </div>
+
+</body>
+
+</html>
