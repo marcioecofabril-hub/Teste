@@ -2,7 +2,6 @@
 <html lang="pt-BR">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -10,773 +9,174 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <meta
-        name="theme-color"
-        content="#071426"
+    <meta name="theme-color" content="#071426">
+
+    <title>MDS_TI | Pagamento Pix</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
     >
-
-    <title>MDS_TI | Pix</title>
-
-    {{ url_for('static', filename='style.css') }}
-
 </head>
 
 <body>
 
 <div class="page">
 
-<main class="payment-card">
+    <main class="payment-card">
+
+        <header class="brand-header">
+
+            <div class="logo">
+                MDS<span>_TI</span>
+            </div>
+
+            <div class="secure-badge">
+                Pagamento seguro
+            </div>
+
+        </header>
 
 
-<header class="brand-header">
+        <section class="hero">
 
-    <div class="logo">
-        MDS<span>_TI</span>
-    </div>
+            <div class="pix-icon">
+                ◆
+            </div>
 
-    <div class="secure-badge">
-        Pagamento seguro
-    </div>
+            <p class="eyebrow">
+                PAGAMENTO VIA PIX
+            </p>
 
-</header>
+            <h1>
+                R$ 10,00
+            </h1>
 
+            <p class="description">
+                Pagamento de serviço de TI
+            </p>
 
-<section class="hero">
-
-    <div class="pix-icon">
-        ◆
-    </div>
-
-    <p class="eyebrow">
-        PAGAMENTO VIA PIX
-    </p>
-
-    <h1>
-        R$ {{ amount }}
-    </h1>
-
-    <p class="description">
-        Pagamento de serviço de TI
-    </p>
-
-</section>
+        </section>
 
 
-<div class="divider"></div>
+        <div class="divider"></div>
 
 
-<section
-    style="
-        padding:24px 26px 28px;
-    "
->
+        {% if error %}
 
-    <div
-        style="
-            padding:14px;
-            background:#f8fafc;
-            border-radius:14px;
-            text-align:center;
-        "
-    >
-
-        data:image/png;base64,{{ qr_base64 }}
-
-    </div>
-
-
-    <p
-        style="
-            color:#475467;
-            text-align:center;
-            font-size:13px;
-            line-height:1.5;
-        "
-    >
-        Escaneie o QR Code ou copie o código
-        abaixo para pagar pelo aplicativo
-        do seu banco.
-    </p>
-
-
-    <label
-        for="pix-code"
-        style="
-            display:block;
-            margin-top:18px;
-            margin-bottom:7px;
-            font-weight:700;
-            font-size:13px;
-            color:#344054;
-        "
-    >
-        Pix Copia e Cola
-    </label>
-
-
-    <textarea
-        id="pix-code"
-        readonly
-        spellcheck="false"
-    >{{ qr_code }}</textarea>
-
-
-    <button
-        type="button"
-        id="copy-button"
-        onclick="copiarPix()"
-    >
-
-        <span id="copy-button-text">
-            Copiar código Pix
-        </span>
-
-        <span>
-            📋
-        </span>
-
-    </button>
-
-
-    <div
-        id="copy-feedback"
-        style="
-            min-height:22px;
-            margin-top:8px;
-            color:#067647;
-            text-align:center;
-            font-size:12px;
-            font-weight:700;
-        "
-    ></div>
-
-
-    <div
-        id="payment-status"
-        class="pending"
-    >
-        Aguardando pagamento...
-    </div>
-
-
-    <button
-        type="button"
-        id="check-button"
-        onclick="verificarPagamento(true)"
-        style="
-            margin-top:12px;
-            background:#071426;
-            box-shadow:none;
-        "
-    >
-        🔄 Verificar pagamento
-    </button>
-
-
-    <div
-        id="approved-box"
-        style="
-            display:none;
-            margin-top:18px;
-            padding:20px;
-            border-radius:14px;
-            background:#ecfdf3;
-            color:#067647;
-            text-align:center;
-        "
-    >
-
-        <div
-            style="
-                font-size:38px;
-            "
-        >
-            ✓
+        <div class="error">
+            {{ error }}
         </div>
 
-        <strong
-            style="
-                font-size:18px;
-            "
-        >
-            Pagamento aprovado!
-        </strong>
-
-        <p
-            style="
-                margin:6px 0 0;
-            "
-        >
-            Recebemos seu pagamento.
-        </p>
-
-    </div>
+        {% endif %}
 
 
-    <div
-        style="
-            margin-top:22px;
-            padding-top:20px;
-            border-top:1px solid #e4e7ec;
-        "
-    >
+        <form method="POST">
 
-        <p
-            style="
-                margin:0 0 12px;
-                color:#344054;
-                font-size:13px;
-                font-weight:700;
-                text-align:center;
-            "
-        >
-            Já realizou o pagamento?
-        </p>
+            <div class="field">
 
+                <label for="name">
+                    Nome
+                </label>
 
-        <input
-            type="file"
-            id="receipt-file"
-            accept="image/*,.pdf"
-            style="display:none;"
-        >
+                <input
+                    id="name"
+                    type="text"
+                    name="name"
+                    placeholder="Digite seu nome"
+                    autocomplete="name"
+                    maxlength="80"
+                    required
+                >
+
+            </div>
 
 
-        <button
-            type="button"
-            onclick="selecionarComprovante()"
-            style="
-                margin-top:0;
-                background:#ffffff;
-                color:#087cf0;
-                border:1px solid #087cf0;
-                box-shadow:none;
-            "
-        >
-            📎 Selecionar comprovante
-        </button>
+            <div class="field">
+
+                <label for="email">
+                    E-mail
+                </label>
+
+                <input
+                    id="email"
+                    type="email"
+                    name="email"
+                    placeholder="seuemail@exemplo.com"
+                    autocomplete="email"
+                    required
+                >
+
+            </div>
 
 
-        <div
-            id="receipt-name"
-            style="
-                margin-top:8px;
-                color:#667085;
-                text-align:center;
-                font-size:12px;
-            "
-        ></div>
+            <div class="summary">
+
+                <div>
+                    <span>Serviço</span>
+                    <strong>Serviço de TI</strong>
+                </div>
+
+                <div>
+                    <span>Total</span>
+                    <strong class="price">
+                        R$ 10,00
+                    </strong>
+                </div>
+
+            </div>
 
 
-        <button
-            type="button"
-            id="share-receipt-button"
-            onclick="enviarComprovante()"
-            style="
-                display:none;
-                background:#16a34a;
-                box-shadow:none;
-            "
-        >
-            📤 Enviar comprovante
-        </button>
+            <button type="submit">
 
-    </div>
+                <span>Gerar Pix</span>
+
+                <span class="arrow">
+                    →
+                </span>
+
+            </button>
+
+        </form>
 
 
-    <div class="info">
+        <div class="info">
 
-        <div class="info-icon">
-            ✓
+            <div class="info-icon">
+                ✓
+            </div>
+
+            <p>
+                Após continuar, será gerado um
+                <strong>QR Code Pix</strong>
+                e o
+                <strong>Pix Copia e Cola</strong>
+                para concluir o pagamento pelo
+                aplicativo do banco.
+            </p>
+
         </div>
 
-        <p>
-            Utilize preferencialmente
-            <strong>Pix Copia e Cola</strong>
-            ao realizar o pagamento pelo mesmo
-            celular.
-        </p>
 
-    </div>
+        <footer>
 
+            <strong>
+                MDS_TI
+            </strong>
 
-    <p
-        style="
-            color:#98a2b3;
-            text-align:center;
-            font-size:10px;
-            overflow-wrap:anywhere;
-        "
-    >
-        ID do pagamento:
-        {{ payment_id }}
-    </p>
+            <span>
+                Soluções em Tecnologia
+            </span>
 
+            <small>
+                Pagamento processado via Mercado Pago
+            </small>
 
-</section>
+        </footer>
 
-
-<footer>
-
-    <strong>
-        MDS_TI
-    </strong>
-
-    <span>
-        Soluções em Tecnologia
-    </span>
-
-    <small>
-        Pagamento processado via Mercado Pago
-    </small>
-
-</footer>
-
-
-</main>
+    </main>
 
 </div>
-
-
-<script>
-
-let pagamentoFinalizado = false;
-let consultando = false;
-let comprovanteSelecionado = null;
-
-
-function codigoPixLimpo() {
-
-    const campo =
-        document.getElementById(
-            "pix-code"
-        );
-
-    return campo.value
-        .replace(/\r/g, "")
-        .replace(/\n/g, "")
-        .replace(/\t/g, "")
-        .replace(/ /g, "")
-        .trim();
-}
-
-
-async function copiarPix() {
-
-    const codigo =
-        codigoPixLimpo();
-
-    const textoBotao =
-        document.getElementById(
-            "copy-button-text"
-        );
-
-    const feedback =
-        document.getElementById(
-            "copy-feedback"
-        );
-
-
-    if (!codigo) {
-
-        feedback.textContent =
-            "Código Pix indisponível.";
-
-        feedback.style.color =
-            "#b42318";
-
-        return;
-    }
-
-
-    try {
-
-        await navigator.clipboard
-            .writeText(codigo);
-
-        textoBotao.textContent =
-            "Código Pix copiado!";
-
-        feedback.textContent =
-            "Código copiado. Abra o aplicativo do banco.";
-
-        feedback.style.color =
-            "#067647";
-
-    } catch (erro) {
-
-        copiarPixAlternativo(
-            codigo
-        );
-    }
-
-
-    setTimeout(function () {
-
-        textoBotao.textContent =
-            "Copiar código Pix";
-
-    }, 2500);
-}
-
-
-function copiarPixAlternativo(
-    codigo
-) {
-
-    const temporario =
-        document.createElement(
-            "textarea"
-        );
-
-    temporario.value =
-        codigo;
-
-    temporario.style.position =
-        "fixed";
-
-    temporario.style.left =
-        "-9999px";
-
-    document.body.appendChild(
-        temporario
-    );
-
-    temporario.focus();
-
-    temporario.select();
-
-    temporario.setSelectionRange(
-        0,
-        codigo.length
-    );
-
-
-    let copiado = false;
-
-
-    try {
-
-        copiado =
-            document.execCommand(
-                "copy"
-            );
-
-    } catch (erro) {
-
-        copiado = false;
-    }
-
-
-    document.body.removeChild(
-        temporario
-    );
-
-
-    const feedback =
-        document.getElementById(
-            "copy-feedback"
-        );
-
-
-    if (copiado) {
-
-        document.getElementById(
-            "copy-button-text"
-        ).textContent =
-            "Código Pix copiado!";
-
-        feedback.textContent =
-            "Código copiado. Abra o aplicativo do banco.";
-
-        feedback.style.color =
-            "#067647";
-
-    } else {
-
-        feedback.textContent =
-            "A cópia automática foi bloqueada. Copie manualmente.";
-
-        feedback.style.color =
-            "#b42318";
-    }
-}
-
-
-async function verificarPagamento(
-    manual
-) {
-
-    if (
-        consultando ||
-        pagamentoFinalizado
-    ) {
-        return;
-    }
-
-
-    consultando = true;
-
-
-    const status =
-        document.getElementById(
-            "payment-status"
-        );
-
-
-    const botao =
-        document.getElementById(
-            "check-button"
-        );
-
-
-    if (manual) {
-
-        status.textContent =
-            "Consultando pagamento...";
-
-        status.className =
-            "pending";
-    }
-
-
-    try {
-
-        const resposta =
-            await fetch(
-                "/api/status/{{ payment_id }}?t=" +
-                Date.now(),
-                {
-                    cache: "no-store"
-                }
-            );
-
-
-        const dados =
-            await resposta.json();
-
-
-        if (
-            resposta.ok &&
-            dados.ok &&
-            dados.status === "approved"
-        ) {
-
-            pagamentoFinalizado =
-                true;
-
-            status.textContent =
-                "Pagamento aprovado!";
-
-            status.className =
-                "approved";
-
-            botao.style.display =
-                "none";
-
-            document.getElementById(
-                "approved-box"
-            ).style.display =
-                "block";
-
-            return;
-        }
-
-
-        if (
-            resposta.ok &&
-            dados.ok &&
-            dados.status === "rejected"
-        ) {
-
-            status.textContent =
-                "Pagamento recusado.";
-
-            status.className =
-                "error";
-
-        } else {
-
-            status.textContent =
-                "Aguardando pagamento...";
-
-            status.className =
-                "pending";
-        }
-
-
-    } catch (erro) {
-
-        status.textContent =
-            "Não foi possível verificar agora.";
-
-        status.className =
-            "error";
-
-    } finally {
-
-        consultando =
-            false;
-    }
-
-
-    if (!pagamentoFinalizado) {
-
-        setTimeout(
-            function () {
-
-                verificarPagamento(
-                    false
-                );
-
-            },
-            5000
-        );
-    }
-}
-
-
-function selecionarComprovante() {
-
-    document.getElementById(
-        "receipt-file"
-    ).click();
-}
-
-
-document.getElementById(
-    "receipt-file"
-).addEventListener(
-    "change",
-    function (evento) {
-
-        const arquivo =
-            evento.target.files[0];
-
-
-        if (!arquivo) {
-
-            comprovanteSelecionado =
-                null;
-
-            return;
-        }
-
-
-        comprovanteSelecionado =
-            arquivo;
-
-
-        document.getElementById(
-            "receipt-name"
-        ).textContent =
-            "Comprovante: " +
-            arquivo.name;
-
-
-        document.getElementById(
-            "share-receipt-button"
-        ).style.display =
-            "flex";
-    }
-);
-
-
-async function enviarComprovante() {
-
-    if (!comprovanteSelecionado) {
-
-        alert(
-            "Selecione o comprovante primeiro."
-        );
-
-        return;
-    }
-
-
-    if (
-        navigator.canShare &&
-        navigator.canShare({
-            files: [
-                comprovanteSelecionado
-            ]
-        })
-    ) {
-
-        try {
-
-            await navigator.share({
-
-                title:
-                    "Comprovante MDS_TI",
-
-                text:
-                    "Comprovante do pagamento MDS_TI - R$ 10,00",
-
-                files: [
-                    comprovanteSelecionado
-                ]
-
-            });
-
-        } catch (erro) {
-
-            if (
-                erro.name !==
-                "AbortError"
-            ) {
-
-                alert(
-                    "Não foi possível abrir o compartilhamento."
-                );
-            }
-        }
-
-    } else {
-
-        alert(
-            "O navegador não permite compartilhar arquivos diretamente. Envie o comprovante pelo WhatsApp normalmente."
-        );
-    }
-}
-
-
-document.addEventListener(
-    "visibilitychange",
-    function () {
-
-        if (
-            document.visibilityState ===
-            "visible" &&
-            !pagamentoFinalizado
-        ) {
-
-            verificarPagamento(
-                true
-            );
-        }
-    }
-);
-
-
-window.addEventListener(
-    "focus",
-    function () {
-
-        if (!pagamentoFinalizado) {
-
-            verificarPagamento(
-                true
-            );
-        }
-    }
-);
-
-
-verificarPagamento(false);
-
-</script>
-
 
 </body>
 
