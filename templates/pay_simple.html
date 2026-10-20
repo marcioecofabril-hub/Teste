@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -9,177 +10,186 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <meta name="theme-color" content="#071426">
-
-    <title>MDS_TI | Pagamento Pix</title>
-
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='style.css') }}"
+    <meta
+        name="theme-color"
+        content="#071426"
     >
+
+    <title>MDS_TI | Pagamento</title>
+
+    {{ url_for('static', filename='style.css') }}
+
 </head>
 
 <body>
 
-    <div class="page">
+<div class="page">
 
-        <main class="payment-card">
+    <main class="payment-card">
 
-            <header class="brand-header">
+        <header class="brand-header">
 
-                <div class="logo">
-                    MDS<span>_TI</span>
-                </div>
-
-                <div class="secure-badge">
-                    Pagamento seguro
-                </div>
-
-            </header>
-
-
-            <section class="hero">
-
-                <div class="pix-icon">
-                    ◆
-                </div>
-
-                <p class="eyebrow">
-                    PAGAMENTO VIA PIX
-                </p>
-
-                <h1>
-                    R$ 10,00
-                </h1>
-
-                <p class="description">
-                    Pagamento de serviço de TI
-                </p>
-
-            </section>
-
-
-            <div class="divider"></div>
-
-
-            {% if error %}
-
-            <div class="error">
-                {{ error }}
+            <div class="logo">
+                MDS<span>_TI</span>
             </div>
 
-            {% endif %}
+            <div class="secure-badge">
+                Pagamento seguro
+            </div>
+
+        </header>
 
 
-            <form method="POST">
+        <section class="hero">
 
-                <div class="field">
+            <div class="pix-icon">
+                ◆
+            </div>
 
-                    <label for="name">
-                        Nome do cliente
-                    </label>
+            <p class="eyebrow">
+                PAGAMENTO VIA PIX
+            </p>
 
-                    <input
-                        id="name"
-                        type="text"
-                        name="name"
-                        placeholder="Digite seu nome"
-                        autocomplete="name"
-                        maxlength="80"
-                        required
-                    >
+            <h1>
+                R$ 10,00
+            </h1>
 
-                </div>
+            <p class="description">
+                Pagamento de serviço de TI
+            </p>
 
-
-                <div class="field">
-
-                    <label for="email">
-                        E-mail
-                    </label>
-
-                    <input
-                        id="email"
-                        type="email"
-                        name="email"
-                        placeholder="seuemail@exemplo.com"
-                        autocomplete="email"
-                        required
-                    >
-
-                </div>
+        </section>
 
 
-                <div class="summary">
-
-                    <div>
-                        <span>Serviço</span>
-
-                        <strong>
-                            Serviço de TI
-                        </strong>
-                    </div>
-
-                    <div>
-                        <span>Valor</span>
-
-                        <strong class="price">
-                            R$ 10,00
-                        </strong>
-                    </div>
-
-                </div>
+        <div class="divider"></div>
 
 
-                <button type="submit">
+        {% if error %}
+
+        <div class="error">
+            {{ error }}
+        </div>
+
+        {% endif %}
+
+
+        <form method="POST">
+
+            <div class="field">
+
+                <label for="name">
+                    Nome
+                </label>
+
+                <input
+                    id="name"
+                    type="text"
+                    name="name"
+                    placeholder="Digite seu nome"
+                    autocomplete="name"
+                    maxlength="80"
+                    required
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label for="email">
+                    E-mail
+                </label>
+
+                <input
+                    id="email"
+                    type="email"
+                    name="email"
+                    placeholder="seuemail@exemplo.com"
+                    autocomplete="email"
+                    required
+                >
+
+            </div>
+
+
+            <div class="summary">
+
+                <div>
 
                     <span>
-                        Gerar Pix
+                        Serviço
                     </span>
 
-                    <span class="arrowpan>
+                    <strong>
+                        Serviço de TI
+                    </strong>
 
-                </button>
-
-            </form>
-
-
-            <div class="info">
-
-                <div class="info-icon">
-                    ✓
                 </div>
 
-                <p>
-                    Ao continuar, será gerado o
-                    <strong>QR Code Pix</strong>
-                    e o
-                    <strong>Pix Copia e Cola</strong>
-                    para você concluir o pagamento pelo aplicativo do seu banco.
-                </p>
+                <div>
+
+                    <span>
+                        Total
+                    </span>
+
+                    <strong class="price">
+                        R$ 10,00
+                    </strong>
+
+                </div>
 
             </div>
 
 
-            <footer>
-
-                <strong>
-                    MDS_TI
-                </strong>
+            <button type="submit">
 
                 <span>
-                    Soluções em Tecnologia
+                    Gerar Pix
                 </span>
 
-                <small>
-                    Pagamento processado via Mercado Pago
-                </small>
+                <span class="arrow">
+                    →
+                </span>
 
-            </footer>
+            </button>
 
-        </main>
+        </form>
 
-    </div>
+
+        <div class="info">
+
+            <div class="info-icon">
+                ✓
+            </div>
+
+            <p>
+                Será gerado um QR Code e um
+                <strong>Pix Copia e Cola</strong>
+                para concluir o pagamento.
+            </p>
+
+        </div>
+
+
+        <footer>
+
+            <strong>
+                MDS_TI
+            </strong>
+
+            <span>
+                Soluções em Tecnologia
+            </span>
+
+            <small>
+                Pagamento processado via Mercado Pago
+            </small>
+
+        </footer>
+
+    </main>
+
+</div>
 
 </body>
 
