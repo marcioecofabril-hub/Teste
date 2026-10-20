@@ -1,458 +1,337 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
+import os
+import uuid
+from datetime import datetime, timezone
 
-<head>
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <meta name="theme-color" content="#071426">
-
-    <title>MDS_TI | Pix gerado</title>
-
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='style.css') }}"
-    >
-</head>
-
-<body>
-
-    <div class="page">
-
-        <main class="payment-card">
-
-            <header class="brand-header">
-
-                <div class="logo">
-                    MDS<span>_TI</span>
-                </div>
-
-                <div class="secure-badge">
-                    Pagamento seguro
-                </div>
-
-            </header>
-
-            <section class="hero">
-
-                <div class="pix-icon">◆</div>
-
-                <p class="eyebrow">
-                    PIX GERADO
-                </p>
-
-                <h1>
-                    R$ {{ amount }}
-                </h1>
-
-                <p class="description">
-                    Pagamento de serviço de TI
-                </p>
-
-            </section>
-
-            <div class="divider"></div>
-
-            <section style="padding: 20px 26px 26px;">
-
-                <p
-                    style="
-                        margin: 0;
-                        color: #475467;
-                        text-align: center;
-                        font-size: 14px;
-                        line-height: 1.5;
-                    "
-                >
-                    Escaneie o QR Code ou utilize o
-                    <strong>Pix Copia e Cola</strong>.
-                </p>
-
-                <img
-                    class="qr"
-                    src="data:image/png;base64,{{ qr_base64 }}"
-                    alt="QR Code Pix"
-                >
-
-                <label
-                    for="pix-code"
-                    style="
-                        display: block;
-                        margin: 5px 0 8px;
-                        color: #344054;
-                        font-size: 13px;
-                        font-weight: 650;
-                    "
-                >
-                    Pix Copia e Cola
-                </label>
-
-                <textarea
-                    id="pix-code"
-                    readonly
-                >{{ qr_code }}</textarea>
-
-                <button
-                    id="copy-button"
-                    type="button"
-                    onclick="copiarPix()"
-                >
-                    <span id="copy-button-text">
-                        Copiar código Pix
-                    </span>
-
-                    <span class="arrow">→</span>
-                </button>
-
-                <div
-                    id="payment-status"
-                    class="pending"
-                >
-                    Consultando pagamento...
-                </div>
-
-                <button
-                    id="check-button"
-                    type="button"
-                    onclick="verificarPagamento(true)"
-                    style="
-                        margin-top: 12px;
-                        background: #071426;
-                        box-shadow: none;
-                    "
-                >
-                    Verificar pagamento agora
-                </button>
-
-                <div
-                    id="approved-details"
-                    style="
-                        display: none;
-                        margin-top: 16px;
-                        padding: 16px;
-                        border-radius: 12px;
-                        background: #ecfdf3;
-                        color: #067647;
-                        text-align: center;
-                    "
-                >
-                    <strong>
-                        Pagamento confirmado
-                    </strong>
-
-                    <p
-                        id="approved-amount"
-                        style="margin: 6px 0 0;"
-                    ></p>
-                </div>
-
-                <p
-                    style="
-                        margin: 18px 0 0;
-                        color: #98a2b3;
-                        text-align: center;
-                        font-size: 10px;
-                    "
-                >
-                    Identificação: {{ payment_id }}
-                </p>
-
-            </section>
-
-            <footer>
-
-                <strong>MDS_TI</strong>
-
-                <span>
-                    Soluções em Tecnologia
-                </span>
-
-                <small>
-                    Pagamento processado via Mercado Pago
-                </small>
-
-            </footer>
-
-        </main>
-
-    </div>
-
-    <script>
-
-        let consultaEmAndamento = false;
-        let pagamentoFinalizado = false;
+import requests
+from flask import Flask, jsonify, render_template, request
 
 
-        function copiarPix() {
+app = Flask(__name__)
 
-            const campo =
-                document.getElementById("pix-code");
-
-            const textoBotao =
-                document.getElementById(
-                    "copy-button-text"
-                );
-
-            const confirmarCopiaBotao.textContent =
-                        "Copiar código Pix";
-
-                }, 2500);
-            };
+MP_API = "https://api.mercadopago.com"
 
 
-            if (
-                navigator.clipboard &&
-                window.isSecureContext
-            ) {
+def mp_token():
+    token = os.environ.get("MP_ACCESS_TOKEN", "").strip()
 
-                navigator.clipboard
-                    .writeText(campo.value)
-                    .then(confirmarCopia)
-                    .catch(function () {
+    if not token:
+        raise RuntimeError(
+            "MP_ACCESS_TOKEN nao configurado"
+        )
 
-                        copiarModoAlternativo(
-                            campo,
-                            confirmarCopia
-                        );
-                    });
+    return token
 
-            } else {
 
-                copiarModoAlternativo(
-                    campo,
-                    confirmarCopia
-                );
-            }
+def mercado_pago_headers():
+    return {
+        "Authorization": f"Bearer {mp_token()}",
+        "Content-Type": "application/json"
+    }
+
+
+@app.route("/", methods=["GET", "POST"])
+def home():
+
+    if request.method == "GET":
+        return render_template(
+            "pay_simple.html"
+        )
+
+    name = (
+        request.form.get("name") or ""
+    ).strip()[:80]
+
+    email = (
+        request.form.get("email") or ""
+    ).strip().lower()[:150]
+
+    if not name:
+        return render_template(
+            "pay_simple.html",
+            error="Informe seu nome."
+        ), 400
+
+    if (
+        "@" not in email
+        or "." not in email.split("@")[-1]
+    ):
+        return render_template(
+            "pay_simple.html",
+            error="Informe um e-mail válido."
+        ), 400
+
+    payload = {
+        "transaction_amount": 10.00,
+        "description": "Pagamento de serviço de TI",
+        "payment_method_id": "pix",
+        "external_reference": (
+            f"MDS-TI-{uuid.uuid4().hex[:12]}"
+        ),
+        "payer": {
+            "email": email,
+            "first_name": name
         }
-
-
-        function copiarModoAlternativo(
-            campo,
-            callback
-        ) {
-
-            campo.focus();
-            campo.select();
-
-            campo.setSelectionRange(
-                0,
-                campo.value.length
-            );
-
-            if (document.execCommand("copy")) {
-                callback();
-            }
-        }
-
-
-        function formatarValor(valor) {
-
-            if (
-                valor === null ||
-                valor === undefined
-            ) {
-                return "";
-            }
-
-            return Number(valor).toLocaleString(
-                "pt-BR",
-                {
-                    style: "currency",
-                    currency: "BRL"
-                }
-            );
-        }
-
-
-        async function verificarPagamento(manual) {
-
-            if (
-                consultaEmAndamento ||
-                pagamentoFinalizado
-            ) {
-                return;
-            }
-
-            consultaEmAndamento = true;
-
-            const status =
-                document.getElementById(
-                    "payment-status"
-                );
-
-            const botao =
-                document.getElementById(
-                    "check-button"
-                );
-
-            if (manual) {
-                status.textContent =
-                    "Atualizando pagamento...";
-            }
-
-            try {
-
-                const resposta = await fetch(
-                    "/api/status/{{ payment_id }}?t=" +
-                    Date.now(),
-                    {
-                        method: "GET",
-                        cache: "no-store",
-                        headers: {
-                            "Accept": "application/json"
-                        }
-                    }
-                );
-
-                const dados =
-                    await resposta.json();
-
-                if (!resposta.ok || !dados.ok) {
-
-                    status.textContent =
-                        "Não foi possível consultar agora.";
-
-                    status.className =
-                        "error";
-
-                    consultaEmAndamento = false;
-
-                    if (!pagamentoFinalizado) {
-                        setTimeout(
-                            function () {
-                                verificarPagamento(false);
-                            },
-                            5000
-                        );
-                    }
-
-                    return;
-                }
-
-
-                if (dados.status === "approved") {
-
-                    pagamentoFinalizado = true;
-
-                    status.textContent =
-                        "Pagamento aprovado!";
-
-                    status.className =
-                        "approved";
-
-                    botao.style.display =
-                        "none";
-
-                    document.getElementById(
-                        "approved-details"
-                    ).style.display = "block";
-
-                    document.getElementById(
-                        "approved-amount"
-                    ).textContent =
-                        "Valor pago: " +
-                        formatarValor(
-                            dados.transaction_amount
-                        );
-
-                    return;
-                }
-
-
-                if (dados.status === "rejected") {
-
-                    pagamentoFinalizado = true;
-
-                    status.textContent =
-                        "Pagamento recusado.";
-
-                    status.className =
-                        "error";
-
-                    return;
-                }
-
-
-                if (
-                    dados.status === "cancelled" ||
-                    dados.status === "refunded"
-                ) {
-
-                    pagamentoFinalizado = true;
-
-                    status.textContent =
-                        "Pagamento cancelado ou devolvido.";
-
-                    status.className =
-                        "error";
-
-                    return;
-                }
-
-
-                status.textContent =
-                    "Aguardando pagamento...";
-
-                status.className =
-                    "pending";
-
-
-            } catch (erro) {
-
-                status.textContent =
-                    "Falha temporária na consulta.";
-
-                status.className =
-                    "error";
-
-            } finally {
-
-                consultaEmAndamento = false;
-            }
-
-
-            if (!pagamentoFinalizado) {
-
-                setTimeout(
-                    function () {
-                        verificarPagamento(false);
-                    },
-                    5000
-                );
-            }
-        }
-
-
-        document.addEventListener(
-            "visibilitychange",
-            function () {
-
-                if (
-                    document.visibilityState ===
-                    "visible"
-                ) {
-                    verificarPagamento(true);
-                }
-            }
-        );
-
-
-        window.addEventListener(
-            "focus",
-            function () {
-                verificarPagamento(true);
-            }
-        );
-
-
-        verificarPagamento(false);
-
-    </script>
-
-</body>
-
-</html>
+    }
+
+    headers = mercado_pago_headers()
+
+    headers["X-Idempotency-Key"] = str(
+        uuid.uuid4()
+    )
+
+    try:
+        response = requests.post(
+            f"{MP_API}/v1/payments",
+            json=payload,
+            headers=headers,
+            timeout=20
+        )
+
+    except requests.RequestException:
+        return render_template(
+            "pay_simple.html",
+            error=(
+                "Não foi possível comunicar com "
+                "o Mercado Pago."
+            )
+        ), 502
+
+    try:
+        data = response.json()
+
+    except ValueError:
+        return render_template(
+            "pay_simple.html",
+            error=(
+                "O Mercado Pago retornou uma "
+                "resposta inválida."
+            )
+        ), 502
+
+    if response.status_code not in (200, 201):
+
+        detail = data.get(
+            "message",
+            "Pagamento não criado."
+        )
+
+        causes = data.get("cause")
+
+        if isinstance(causes, list) and causes:
+            first_cause = causes[0]
+
+            if isinstance(first_cause, dict):
+                detail = (
+                    first_cause.get("description")
+                    or first_cause.get("code")
+                    or detail
+                )
+
+        return render_template(
+            "pay_simple.html",
+            error=f"Mercado Pago: {detail}"
+        ), 400
+
+    point_of_interaction = (
+        data.get("point_of_interaction") or {}
+    )
+
+    transaction_data = (
+        point_of_interaction.get(
+            "transaction_data"
+        ) or {}
+    )
+
+    qr_code = (
+        transaction_data.get("qr_code")
+        or ""
+    ).strip()
+
+    qr_base64 = (
+        transaction_data.get(
+            "qr_code_base64"
+        )
+        or ""
+    ).strip()
+
+    payment_id = str(
+        data.get("id") or ""
+    ).strip()
+
+    if not payment_id:
+        return render_template(
+            "message.html",
+            title="Pagamento não identificado",
+            message=(
+                "O Mercado Pago não retornou "
+                "a identificação do pagamento."
+            )
+        ), 502
+
+    if not qr_code or not qr_base64:
+        return render_template(
+            "message.html",
+            title="QR Code indisponível",
+            message=(
+                "O Mercado Pago não retornou "
+                "o QR Code do pagamento."
+            )
+        ), 502
+
+    return render_template(
+        "pix.html",
+        amount="10,00",
+        qr_code=qr_code,
+        qr_base64=qr_base64,
+        payment_id=payment_id
+    )
+
+
+@app.get("/api/status/<payment_id>")
+def payment_status(payment_id):
+
+    if not payment_id.isdigit():
+        return jsonify({
+            "ok": False,
+            "error": (
+                "Identificação do pagamento "
+                "inválida."
+            )
+        }), 400
+
+    try:
+        response = requests.get(
+            (
+                f"{MP_API}/v1/payments/"
+                f"{payment_id}"
+            ),
+            headers=mercado_pago_headers(),
+            timeout=15
+        )
+
+    except requests.RequestException:
+        return jsonify({
+            "ok": False,
+            "error": (
+                "Falha de comunicação com "
+                "o Mercado Pago."
+            )
+        }), 502
+
+    try:
+        data = response.json()
+
+    except ValueError:
+        return jsonify({
+            "ok": False,
+            "error": (
+                "Resposta inválida do "
+                "Mercado Pago."
+            )
+        }), 502
+
+    if response.status_code != 200:
+        return jsonify({
+            "ok": False,
+            "error": data.get(
+                "message",
+                "Pagamento não encontrado."
+            )
+        }), response.status_code
+
+    transaction_details = (
+        data.get("transaction_details") or {}
+    )
+
+    fee_details = (
+        data.get("fee_details") or []
+    )
+
+    total_fees = 0.0
+
+    for fee in fee_details:
+        if isinstance(fee, dict):
+            try:
+                total_fees += float(
+                    fee.get("amount") or 0
+                )
+            except (TypeError, ValueError):
+                pass
+
+    return jsonify({
+        "ok": True,
+        "payment_id": str(
+            data.get("id") or ""
+        ),
+        "status": data.get("status"),
+        "status_detail": data.get(
+            "status_detail"
+        ),
+        "transaction_amount": data.get(
+            "transaction_amount"
+        ),
+        "net_received_amount": (
+            transaction_details.get(
+                "net_received_amount"
+            )
+        ),
+        "total_fees": total_fees,
+        "date_approved": data.get(
+            "date_approved"
+        )
+    }), 200
+
+
+@app.get("/health")
+def health():
+
+    return jsonify({
+        "ok": True,
+        "time": (
+            datetime
+            .now(timezone.utc)
+            .isoformat()
+        )
+    })
+
+
+@app.errorhandler(404)
+def page_not_found(error):
+
+    return render_template(
+        "message.html",
+        title="Página não encontrada",
+        message=(
+            "O endereço acessado não existe. "
+            "Volte para a página de pagamento."
+        )
+    ), 404
+
+
+@app.errorhandler(500)
+def internal_error(error):
+
+    return render_template(
+        "message.html",
+        title="Erro interno",
+        message=(
+            "Não foi possível concluir a "
+            "solicitação. Tente novamente."
+        )
+    ), 500
+
+
+if __name__ == "__main__":
+
+    port = int(
+        os.environ.get(
+            "PORT",
+            "5000"
+        )
+    )
+
+    app.run(
+        host="0.0.0.0",
+        port=port,
+        debug=False
+    )
