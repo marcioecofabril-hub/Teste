@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#071426"
+    >
+
+    <title>MDS_TI | Pix gerado</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body>
+
+    <div class="page">
+
+        <main class="payment-card">
+
+            <header class="brand-header">
+
+                <div class="logo">
+                    MDS<span>_TI</span>
+                </div>
+
+                <div class="secure-badge">
+                    Pagamento seguro
+                </div>
+
+            </header>
+
+
+            <section class="hero">
+
+                <div class="pix-icon">
+                    ◆
+                </div>
+
+                <p class="eyebrow">
+                    PIX GERADO
+                </p>
+
+                <h1>
+                    R$ {{ amount }}
+                </h1>
+
+                <p class="description">
+                    Pagamento de serviço de TI
+                </p>
+
+            </section>
+
+
+            <div class="divider"></div>
+
+
+            <section style="padding: 20px 26px 26px;">
+
+                <p
+                    style="
+                        margin: 0;
+                        color: #475467;
+                        text-align: center;
+                        font-size: 14px;
+                        line-height: 1.5;
+                    "
+                >
+                    Escaneie o QR Code ou utilize o
+                    <strong>Pix Copia e Cola</strong>.
+                </p>
+
+
+                <img
+                    class="qr"
+                    src="data:image/png;base64,{{ qr_base64 }}"
+                    alt="QR Code para pagamento via Pix"
+                >
+
+
+                <label
+                    for="pix-code"
+                    style="
+                        display: block;
+                        margin: 5px 0 8px;
+                        color: #344054;
+                        font-size: 13px;
+                        font-weight: 650;
+                    "
+                >
+                    Pix Copia e Cola
+                </label>
+
+
+                <textarea
+                    id="pix-code"
+                    readonly
+                    aria-label="Código Pix Copia e Cola"
+                >{{ qr_code }}</textarea>
+
+
+                <button
+                    id="copy-button"
+                    type="button"
+                    onclick="copiarPix()"
+                >
+
+                    <span id="copy-button-text">
+                        Copiar código Pix
+                    </span>
+
+                    <span class="arrow">
+                        →
+                    </span>
+
+                </button>
+
+
+                <div
+                    id="payment-status"
+                    class="pending"
+                >
+                    Aguardando pagamento...
+                </div>
+
+
+                <div class="info">
+
+                    <div class="info-icon">
+                        ✓
+                    </div>
+
+                    <p>
+                        Após copiar o código, abra o aplicativo do seu banco,
+                        escolha a opção
+                        <strong>Pix Copia e Cola</strong>
+                        e confirme o pagamento de
+                        <strong>R$ {{ amount }}</strong>.
+                    </p>
+
+                </div>
+
+
+                <p
+                    style="
+                        margin: 18px 0 0;
+                        color: #98a2b3;
+                        text-align: center;
+                        font-size: 10px;
+                    "
+                >
+                    Identificação do pagamento:
+                    {{ payment_id }}
+                </p>
+
+            </section>
+
+
+            <footer>
+
+                <strong>
+                    MDS_TI
+                </strong>
+
+                <span>
+                    Soluções em Tecnologia
+                </span>
+
+                <small>
+                    Pagamento processado via Mercado Pago
+                </small>
+
+            </footer>
+
+        </main>
+
+    </div>
+
+
+    <script>
+
+        function copiarPix() {
+
+            const campoPix =
+                document.getElementById("pix-code");
+
+            const textoBotao =
+                document.getElementById("copy-button-text");
+
+
+            if (
+                navigator.clipboard &&
+                window.isSecureContext
+            ) {
+
+                navigator.clipboard
+                    .writeText(campoPix.value)
+                    .then(function () {
+
+                        textoBotao.textContent =
+                            "Código Pix copiado!";
+
+                        setTimeout(function () {
+
+                            textoBotao.textContent =
+                                "Copiar código Pix";
+
+                        }, 2500);
+
+                    })
+                    .catch(function () {
+
+                        copiarPixModoAlternativo(
+                         campoPix,
+                    textoBotao
+                );
+
+            }
+
+        }
+
+
+        function copiarPixModoAlternativo(
+            campoPix,
+            textoBotao
+        ) {
+
+            campoPix.focus();
+            campoPix.select();
+            campoPix.setSelectionRange(
+                0,
+                campoPix.value.length
+            );
+
+            const copiado =
+                document.execCommand("copy");
+
+            if (copiado) {
+
+                textoBotao.textContent =
+                    "Código Pix copiado!";
+
+                setTimeout(function () {
+
+                    textoBotao.textContent =
+                        "Copiar código Pix";
+
+                }, 2500);
+
+            } else {
+
+                textoBotao.textContent =
+                    "Selecione e copie o código";
+
+            }
+
+        }
+
+
+        async function verificarPagamento() {
+
+            const elementoStatus =
+                document.getElementById(
+                    "payment-status"
+                );
+
+            try {
+
+                const resposta = await fetch(
+                    "/api/status/{{ status_token }}",
+                    {
+                        method: "GET",
+                        cache: "no-store"
+                    }
+                );
+
+
+                if (!resposta.ok) {
+
+                    setTimeout(
+                        verificarPagamento,
+                        5000
+                    );
+
+                    return;
+                }
+
+
+                const dados =
+                    await resposta.json();
+
+
+                if (dados.status === "approved") {
+
+                    elementoStatus.textContent =
+                        "Pagamento aprovado!";
+
+                    elementoStatus.className =
+                        "approved";
+
+                    return;
+                }
+
+
+                if (dados.status === "rejected") {
+
+                    elementoStatus.textContent =
+                        "Pagamento recusado.";
+
+                    elementoStatus.className =
+                        "error";
+
+                    return;
+                }
+
+
+                if (dados.status === "cancelled") {
+
+                    elementoStatus.textContent =
+                        "Pagamento cancelado.";
+
+                    elementoStatus.className =
+                        "error";
+
+                    return;
+                }
+
+
+                elementoStatus.textContent =
+                    "Aguardando pagamento...";
+
+
+            } catch (erro) {
+
+                console.log(
+                    "Falha ao consultar o pagamento:",
+                    erro
+                );
+
+            }
+
+
+            setTimeout(
+                verificarPagamento,
+                5000
+            );
+
+        }
+
+
+        verificarPagamento();
+
+    </script>
+
+</body>
+
+</html>
