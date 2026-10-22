@@ -13,9 +13,7 @@
 
     <title>MDS_TI | Pagamento Pix</title>
 
-    <!-- =========================================
-         PREVIA DO LINK - WHATSAPP / REDES SOCIAIS
-    ========================================== -->
+    <!-- PREVIA DO LINK PARA WHATSAPP -->
 
     <meta
         property="og:title"
@@ -29,17 +27,32 @@
 
     <meta
         property="og:image"
-        content="https://pagamento-pix-ti.onrender.com/static/PIX.png"
+        content="https://pagamento-pix-ti.onrender.com/static/PIX.PNG"
     >
 
     <meta
         property="og:image:secure_url"
-        content="https://pagamento-pix-ti.onrender.com/static/PIX.png"
+        content="https://pagamento-pix-ti.onrender.com/static/PIX.PNG"
     >
 
     <meta
         property="og:image:type"
         content="image/png"
+    >
+
+    <meta
+        property="og:image:width"
+        content="1200"
+    >
+
+    <meta
+        property="og:image:height"
+        content="630"
+    >
+
+    <meta
+        property="og:image:alt"
+        content="MDS_TI Pagamento Pix"
     >
 
     <meta
@@ -57,7 +70,7 @@
         content="MDS_TI"
     >
 
-    <!-- Twitter / outros serviços -->
+    <!-- PREVIA PARA OUTROS SERVICOS -->
 
     <meta
         name="twitter:card"
@@ -76,12 +89,10 @@
 
     <meta
         name="twitter:image"
-        content="https://pagamento-pix-ti.onrender.com/static/PIX.png"
+        content="https://pagamento-pix-ti.onrender.com/static/PIX.PNG"
     >
 
-    <!-- =========================================
-         CSS
-    ========================================== -->
+    <!-- CSS PRINCIPAL -->
 
     <link
         rel="stylesheet"
@@ -132,15 +143,15 @@
 
         .plan-icon {
             display: block;
-            font-size: 28px;
             margin-bottom: 6px;
+            font-size: 28px;
         }
 
         .plan-name {
             display: block;
+            margin-bottom: 6px;
             font-size: 15px;
             font-weight: 800;
-            margin-bottom: 6px;
         }
 
         .plan-price {
@@ -192,16 +203,11 @@
 
 </head>
 
-
 <body>
 
 <div class="page">
 
     <main class="payment-card">
-
-        <!-- =========================================
-             CABECALHO
-        ========================================== -->
 
         <header class="brand-header">
 
@@ -214,11 +220,6 @@
             </div>
 
         </header>
-
-
-        <!-- =========================================
-             DESTAQUE
-        ========================================== -->
 
         <section class="hero">
 
@@ -240,13 +241,7 @@
 
         </section>
 
-
         <div class="divider"></div>
-
-
-        <!-- =========================================
-             MENSAGEM DE ERRO
-        ========================================== -->
 
         {% if error %}
 
@@ -256,24 +251,15 @@
 
         {% endif %}
 
-
-        <!-- =========================================
-             FORMULARIO
-        ========================================== -->
-
         <form method="POST">
 
             <p class="plans-title">
                 ESCOLHA SEU PLANO
             </p>
 
-
-            <!-- PLANOS -->
-
             <div class="plans">
 
-
-                <!-- PRATA -->
+                <!-- ACESSO PRATA -->
 
                 <div class="plan-option">
 
@@ -310,8 +296,7 @@
 
                 </div>
 
-
-                <!-- OURO -->
+                <!-- ACESSO OURO -->
 
                 <div class="plan-option">
 
@@ -324,8 +309,7 @@
                     >
 
                     <label
-                        for="plano-ouro"
-                        class="plan-card gold"
+             class="plan-card gold"
                     >
 
                         <span class="plan-icon">
@@ -350,9 +334,6 @@
 
             </div>
 
-
-            <!-- NOME -->
-
             <div class="field">
 
                 <label for="name">
@@ -370,9 +351,6 @@
                 >
 
             </div>
-
-
-            <!-- EMAIL -->
 
             <div class="field">
 
@@ -392,9 +370,6 @@
 
             </div>
 
-
-            <!-- RESUMO -->
-
             <div class="summary">
 
                 <div>
@@ -409,7 +384,6 @@
 
                 </div>
 
-
                 <div>
 
                     <span>
@@ -418,15 +392,14 @@
 
                     <strong
                         class="price"
-                        id="summary- --
+                        id="summary-price"
+                    >
+                        --
                     </strong>
 
                 </div>
 
             </div>
-
-
-            <!-- BOTAO -->
 
             <button type="submit">
 
@@ -442,11 +415,6 @@
 
         </form>
 
-
-        <!-- =========================================
-             INFORMACOES
-        ========================================== -->
-
         <div class="info">
 
             <div class="info-icon">
@@ -454,30 +422,15 @@
             </div>
 
             <p>
-
                 Após continuar, será gerado um
-
-                <strong>
-                    QR Code Pix
-                </strong>
-
+                <strong>QR Code Pix</strong>
                 e o
-
-                <strong>
-                    Pix Copia e Cola
-                </strong>
-
+                <strong>Pix Copia e Cola</strong>
                 para concluir o pagamento pelo
                 aplicativo do banco.
-
             </p>
 
         </div>
-
-
-        <!-- =========================================
-             RODAPE
-        ========================================== -->
 
         <footer>
 
@@ -498,11 +451,6 @@
     </main>
 
 </div>
-
-
-<!-- =========================================
-     JAVASCRIPT DOS PLANOS
-========================================== -->
 
 <script>
 
@@ -567,7 +515,6 @@
     );
 
 </script>
-
 
 </body>
 
