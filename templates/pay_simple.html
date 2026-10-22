@@ -13,12 +13,83 @@
 
     <title>MDS_TI | Pagamento Pix</title>
 
+    <!-- =========================================
+         PREVIA DO LINK - WHATSAPP / REDES SOCIAIS
+    ========================================== -->
+
+    <meta
+        property="og:title"
+        content="MDS_TI | Pagamento Pix"
+    >
+
+    <meta
+        property="og:description"
+        content="Escolha seu acesso: Prata R$ 10,00 ou Ouro R$ 15,00. Pagamento rápido e seguro via Pix."
+    >
+
+    <meta
+        property="og:image"
+        content="https://pagamento-pix-ti.onrender.com/static/PIX.png"
+    >
+
+    <meta
+        property="og:image:secure_url"
+        content="https://pagamento-pix-ti.onrender.com/static/PIX.png"
+    >
+
+    <meta
+        property="og:image:type"
+        content="image/png"
+    >
+
+    <meta
+        property="og:url"
+        content="https://pagamento-pix-ti.onrender.com/"
+    >
+
+    <meta
+        property="og:type"
+        content="website"
+    >
+
+    <meta
+        property="og:site_name"
+        content="MDS_TI"
+    >
+
+    <!-- Twitter / outros serviços -->
+
+    <meta
+        name="twitter:card"
+        content="summary_large_image"
+    >
+
+    <meta
+        name="twitter:title"
+        content="MDS_TI | Pagamento Pix"
+    >
+
+    <meta
+        name="twitter:description"
+        content="Escolha seu acesso Prata ou Ouro e faça o pagamento via Pix."
+    >
+
+    <meta
+        name="twitter:image"
+        content="https://pagamento-pix-ti.onrender.com/static/PIX.png"
+    >
+
+    <!-- =========================================
+         CSS
+    ========================================== -->
+
     <link
         rel="stylesheet"
         href="{{ url_for('static', filename='style.css') }}"
     >
 
     <style>
+
         .plans-title {
             margin: 0 0 14px;
             text-align: center;
@@ -95,6 +166,7 @@
 
         .plan-option input:checked + .plan-card.silver {
             border-color: #cbd5e1;
+
             box-shadow:
                 0 0 0 2px rgba(203, 213, 225, 0.15),
                 0 8px 24px rgba(0, 0, 0, 0.25);
@@ -102,24 +174,34 @@
 
         .plan-option input:checked + .plan-card.gold {
             border-color: #f5c542;
+
             box-shadow:
                 0 0 0 2px rgba(245, 197, 66, 0.15),
                 0 8px 24px rgba(0, 0, 0, 0.25);
         }
 
         @media (max-width: 560px) {
+
             .plans {
                 grid-template-columns: 1fr;
             }
+
         }
+
     </style>
+
 </head>
+
 
 <body>
 
 <div class="page">
 
     <main class="payment-card">
+
+        <!-- =========================================
+             CABECALHO
+        ========================================== -->
 
         <header class="brand-header">
 
@@ -133,6 +215,10 @@
 
         </header>
 
+
+        <!-- =========================================
+             DESTAQUE
+        ========================================== -->
 
         <section class="hero">
 
@@ -158,6 +244,10 @@
         <div class="divider"></div>
 
 
+        <!-- =========================================
+             MENSAGEM DE ERRO
+        ========================================== -->
+
         {% if error %}
 
         <div class="error">
@@ -167,13 +257,23 @@
         {% endif %}
 
 
+        <!-- =========================================
+             FORMULARIO
+        ========================================== -->
+
         <form method="POST">
 
             <p class="plans-title">
                 ESCOLHA SEU PLANO
             </p>
 
+
+            <!-- PLANOS -->
+
             <div class="plans">
+
+
+                <!-- PRATA -->
 
                 <div class="plan-option">
 
@@ -210,6 +310,8 @@
 
                 </div>
 
+
+                <!-- OURO -->
 
                 <div class="plan-option">
 
@@ -249,6 +351,8 @@
             </div>
 
 
+            <!-- NOME -->
+
             <div class="field">
 
                 <label for="name">
@@ -268,6 +372,8 @@
             </div>
 
 
+            <!-- EMAIL -->
+
             <div class="field">
 
                 <label for="email">
@@ -280,24 +386,35 @@
                     name="email"
                     placeholder="seuemail@exemplo.com"
                     autocomplete="email"
+                    maxlength="150"
                     required
                 >
 
             </div>
 
 
+            <!-- RESUMO -->
+
             <div class="summary">
 
                 <div>
-                    <span>Plano</span>
+
+                    <span>
+                        Plano
+                    </span>
 
                     <strong id="summary-plan">
                         Selecione Prata ou Ouro
                     </strong>
+
                 </div>
 
+
                 <div>
-                    <span>Total</span>
+
+                    <span>
+                        Total
+                    </span>
 
                     <strong
                         class="price"
@@ -305,10 +422,13 @@
                     >
                         --
                     </strong>
+
                 </div>
 
             </div>
 
+
+            <!-- BOTAO -->
 
             <button type="submit">
 
@@ -325,6 +445,10 @@
         </form>
 
 
+        <!-- =========================================
+             INFORMACOES
+        ========================================== -->
+
         <div class="info">
 
             <div class="info-icon">
@@ -332,16 +456,30 @@
             </div>
 
             <p>
+
                 Após continuar, será gerado um
-                <strong>QR Code Pix</strong>
+
+                <strong>
+                    QR Code Pix
+                </strong>
+
                 e o
-                <strong>Pix Copia e Cola</strong>
+
+                <strong>
+                    Pix Copia e Cola
+                </strong>
+
                 para concluir o pagamento pelo
                 aplicativo do banco.
+
             </p>
 
         </div>
 
+
+        <!-- =========================================
+             RODAPE
+        ========================================== -->
 
         <footer>
 
@@ -364,7 +502,12 @@
 </div>
 
 
+<!-- =========================================
+     JAVASCRIPT DOS PLANOS
+========================================== -->
+
 <script>
+
     const planoPrata =
         document.getElementById("plano-prata");
 
@@ -377,8 +520,7 @@
     const summaryPlan =
         document.getElementById("summary-plan");
 
-    const summaryPrice =
-        document.getElementById("summary-price");
+ yId("summary-price");
 
 
     function selecionarPlano(nome, preco) {
@@ -388,6 +530,7 @@
         summaryPlan.textContent = nome;
 
         summaryPrice.textContent = preco;
+
     }
 
 
@@ -396,11 +539,14 @@
         function () {
 
             if (this.checked) {
+
                 selecionarPlano(
                     "Acesso Prata",
                     "R$ 10,00"
                 );
+
             }
+
         }
     );
 
@@ -410,14 +556,19 @@
         function () {
 
             if (this.checked) {
+
                 selecionarPlano(
                     "Acesso Ouro",
                     "R$ 15,00"
                 );
+
             }
+
         }
     );
+
 </script>
+
 
 </body>
 
