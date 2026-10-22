@@ -17,6 +17,102 @@
         rel="stylesheet"
         href="{{ url_for('static', filename='style.css') }}"
     >
+
+    <style>
+        .plans-title {
+            margin: 0 0 14px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 700;
+            color: #d9e3f0;
+        }
+
+        .plans {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 22px;
+        }
+
+        .plan-option {
+            position: relative;
+        }
+
+        .plan-option input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .plan-card {
+            display: block;
+            padding: 18px 12px;
+            border: 2px solid #26384d;
+            border-radius: 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s ease;
+            background: #0c1b2e;
+        }
+
+        .plan-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .plan-icon {
+            display: block;
+            font-size: 28px;
+            margin-bottom: 6px;
+        }
+
+        .plan-name {
+            display: block;
+            font-size: 15px;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        .plan-price {
+            display: block;
+            font-size: 25px;
+            font-weight: 800;
+        }
+
+        .plan-description {
+            display: block;
+            margin-top: 6px;
+            font-size: 12px;
+            opacity: 0.75;
+        }
+
+        .silver {
+            color: #e2e8f0;
+        }
+
+        .gold {
+            color: #f5c542;
+        }
+
+        .plan-option input:checked + .plan-card.silver {
+            border-color: #cbd5e1;
+            box-shadow:
+                0 0 0 2px rgba(203, 213, 225, 0.15),
+                0 8px 24px rgba(0, 0, 0, 0.25);
+        }
+
+        .plan-option input:checked + .plan-card.gold {
+            border-color: #f5c542;
+            box-shadow:
+                0 0 0 2px rgba(245, 197, 66, 0.15),
+                0 8px 24px rgba(0, 0, 0, 0.25);
+        }
+
+        @media (max-width: 560px) {
+            .plans {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -48,12 +144,12 @@
                 PAGAMENTO VIA PIX
             </p>
 
-            <h1>
-                R$ 10,00
+            <h1 id="hero-price">
+                Escolha seu acesso
             </h1>
 
             <p class="description">
-                Pagamento de serviço de TI
+                Selecione o plano desejado
             </p>
 
         </section>
@@ -72,6 +168,86 @@
 
 
         <form method="POST">
+
+            <p class="plans-title">
+                ESCOLHA SEU PLANO
+            </p>
+
+            <div class="plans">
+
+                <div class="plan-option">
+
+                    <input
+                        type="radio"
+                        id="plano-prata"
+                        name="plano"
+                        value="prata"
+                        required
+                    >
+
+                    <label
+                        for="plano-prata"
+                        class="plan-card silver"
+                    >
+
+                        <span class="plan-icon">
+                            🥈
+                        </span>
+
+                        <span class="plan-name">
+                            ACESSO PRATA
+                        </span>
+
+                        <span class="plan-price">
+                            R$ 10,00
+                        </span>
+
+                        <span class="plan-description">
+                            Acesso comum
+                        </span>
+
+                    </label>
+
+                </div>
+
+
+                <div class="plan-option">
+
+                    <input
+                        type="radio"
+                        id="plano-ouro"
+                        name="plano"
+                        value="ouro"
+                        required
+                    >
+
+                    <label
+                        for="plano-ouro"
+                        class="plan-card gold"
+                    >
+
+                        <span class="plan-icon">
+                            🥇
+                        </span>
+
+                        <span class="plan-name">
+                            ACESSO OURO
+                        </span>
+
+                        <span class="plan-price">
+                            R$ 15,00
+                        </span>
+
+                        <span class="plan-description">
+                            Acesso Premium
+                        </span>
+
+                    </label>
+
+                </div>
+
+            </div>
+
 
             <div class="field">
 
@@ -113,14 +289,21 @@
             <div class="summary">
 
                 <div>
-                    <span>Serviço</span>
-                    <strong>Serviço de TI</strong>
+                    <span>Plano</span>
+
+                    <strong id="summary-plan">
+                        Selecione Prata ou Ouro
+                    </strong>
                 </div>
 
                 <div>
                     <span>Total</span>
-                    <strong class="price">
-                        R$ 10,00
+
+                    <strong
+                        class="price"
+                        id="summary-price"
+                    >
+                        --
                     </strong>
                 </div>
 
@@ -129,7 +312,9 @@
 
             <button type="submit">
 
-                <span>Gerar Pix</span>
+                <span>
+                    Gerar Pix
+                </span>
 
                 <span class="arrow">
                     →
@@ -177,6 +362,62 @@
     </main>
 
 </div>
+
+
+<script>
+    const planoPrata =
+        document.getElementById("plano-prata");
+
+    const planoOuro =
+        document.getElementById("plano-ouro");
+
+    const heroPrice =
+        document.getElementById("hero-price");
+
+    const summaryPlan =
+        document.getElementById("summary-plan");
+
+    const summaryPrice =
+        document.getElementById("summary-price");
+
+
+    function selecionarPlano(nome, preco) {
+
+        heroPrice.textContent = preco;
+
+        summaryPlan.textContent = nome;
+
+        summaryPrice.textContent = preco;
+    }
+
+
+    planoPrata.addEventListener(
+        "change",
+        function () {
+
+            if (this.checked) {
+                selecionarPlano(
+                    "Acesso Prata",
+                    "R$ 10,00"
+                );
+            }
+        }
+    );
+
+
+    planoOuro.addEventListener(
+        "change",
+        function () {
+
+            if (this.checked) {
+                selecionarPlano(
+                    "Acesso Ouro",
+                    "R$ 15,00"
+                );
+            }
+        }
+    );
+</script>
 
 </body>
 
