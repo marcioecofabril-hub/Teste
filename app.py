@@ -11,6 +11,25 @@ app = Flask(__name__)
 MP_API = "https://api.mercadopago.com"
 
 
+# ============================================================
+# PLANOS DISPONIVEIS
+# O valor e definido somente no servidor.
+# ============================================================
+
+PLANOS = {
+    "prata": {
+        "nome": "Acesso Prata",
+        "valor": 10.00,
+        "valor_exibicao": "10,00"
+    },
+    "ouro": {
+        "nome": "Acesso Ouro",
+        "valor": 15.00,
+        "valor_exibicao": "15,00"
+    }
+}
+
+
 def mp_token():
     token = os.environ.get(
         "MP_ACCESS_TOKEN",
@@ -48,6 +67,10 @@ def home():
         request.form.get("email") or ""
     ).strip().lower()[:150]
 
+    plano_escolhido = (
+        request.form.get("plano") or ""
+    ).strip().lower()
+
     if not nome:
         return render_template(
             "pay_simple.html",
@@ -63,15 +86,32 @@ def home():
             error="Informe um e-mail válido."
         ), 400
 
+    # Verifica se o plano enviado realmente existe.
+    if plano_escolhido not in PLANOS:
+        return render_template(
+            "pay_simple.html",
+            error=(
+                "Selecione o Acesso Prata "
+                "ou o Acesso Ouro."
+            )
+        ), 400
+
+    plano = PLANOS[plano_escolhido]
+
+    valor = plano["valor"]
+    nome_plano = plano["nome"]
+    valor_exibicao = plano["valor_exibicao"]
+
+    external_reference = (
+        f"MDS-TI-{plano_escolhido.upper()}-"
+        f"{uuid.uuid4().hex[:12]}"
+    )
+
     payload = {
-        "transaction_amount": 10.00,
-        "description": (
-            "Pagamento de serviço de TI"
-        ),
+        "transaction_amount": valor,
+        "description": nome_plano,
         "payment_method_id": "pix",
-        "external_reference": (
-            f"MDS-TI-{uuid.uuid4().hex[:12]}"
-        ),
+        "external_reference": external_reference,
         "payer": {
             "email": email,
             "first_name": nome
@@ -203,7 +243,9 @@ def home():
 
     return render_template(
         "pix.html",
-        amount="10,00",
+        amount=valor_exibicao,
+        plano=nome_plano,
+        plano_id=plano_escolhido,
         qr_code=qr_code,
         qr_base64=qr_base64,
         payment_id=payment_id
@@ -266,6 +308,19 @@ def payment_status(payment_id):
         or {}
     )
 
+    external_reference = (
+        data.get("external_reference")
+        or ""
+    )
+
+    plano = ""
+
+    if "-PRATA-" in external_reference:
+        plano = "prata"
+
+    elif "-OURO-" in external_reference:
+        plano = "ouro"
+
     return jsonify({
         "ok": True,
         "payment_id": str(
@@ -285,7 +340,9 @@ def payment_status(payment_id):
         ),
         "date_approved": data.get(
             "date_approved"
-        )
+        ),
+        "plano": plano,
+        "external_reference": external_reference
     }), 200
 
 
