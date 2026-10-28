@@ -22,7 +22,7 @@
 
     <meta
         property="og:description"
-        content="Pagamento seguro via Pix."
+        content="Pagamento referente ao teste realizado."
     >
 
     <meta
@@ -84,7 +84,7 @@
 
     <meta
         name="twitter:description"
-        content="Pagamento seguro via Pix."
+        content="Pagamento referente ao teste realizado."
     >
 
     <meta
@@ -94,10 +94,7 @@
 
     <!-- CSS PRINCIPAL -->
 
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='style.css') }}"
-    >
+    {{ url_for('static', filename='style.css') }}
 
     <style>
 
@@ -191,6 +188,22 @@
                 0 8px 24px rgba(0, 0, 0, 0.25);
         }
 
+        .contact-message {
+            margin: 12px 0 0;
+            padding: 14px 16px;
+            border: 1px solid rgba(66, 153, 225, 0.22);
+            border-radius: 12px;
+            color: #cbd5e1;
+            background: rgba(12, 27, 46, 0.72);
+            font-size: 13px;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        .contact-message strong {
+            color: #ffffff;
+        }
+
         @media (max-width: 560px) {
 
             .plans {
@@ -232,12 +245,19 @@
             </p>
 
             <h1 id="hero-price">
-                Escolha seu acesso
+                Pagamento referente ao teste realizado
             </h1>
 
             <p class="description">
-                Selecione o plano desejado
+                Selecione o valor correspondente ao teste
             </p>
+
+            <div class="contact-message">
+                Após o pagamento, envie o
+                <strong>comprovante</strong>.
+                Para os demais serviços, entre em contato
+                pelo <strong>telefone</strong>.
+            </div>
 
         </section>
 
@@ -254,7 +274,7 @@
         <form method="POST">
 
             <p class="plans-title">
-                ESCOLHA SEU PLANO
+                ESCOLHA O VALOR DO TESTE
             </p>
 
             <div class="plans">
@@ -285,11 +305,11 @@
                         </span>
 
                         <span class="plan-price">
-                            R$ 10,00
+                            R$ 15,00
                         </span>
 
                         <span class="plan-description">
-                            Acesso comum
+                            Pagamento do teste
                         </span>
 
                     </label>
@@ -309,7 +329,8 @@
                     >
 
                     <label
-             class="plan-card gold"
+                        for="plano-ouro"
+                        class="plan-card gold"
                     >
 
                         <span class="plan-icon">
@@ -321,11 +342,11 @@
                         </span>
 
                         <span class="plan-price">
-                            R$ 15,00
+                            R$ 20,00
                         </span>
 
                         <span class="plan-description">
-                            Acesso Premium
+                            Pagamento do teste
                         </span>
 
                     </label>
@@ -375,7 +396,7 @@
                 <div>
 
                     <span>
-                        Plano
+                        Pagamento
                     </span>
 
                     <strong id="summary-plan">
@@ -488,8 +509,8 @@
             if (this.checked) {
 
                 selecionarPlano(
-                    "Acesso Prata",
-                    "R$ 10,00"
+                    "Teste realizado - Prata",
+                    "R$ 15,00"
                 );
 
             }
@@ -505,8 +526,8 @@
             if (this.checked) {
 
                 selecionarPlano(
-                    "Acesso Ouro",
-                    "R$ 15,00"
+                    "Teste realizado - Ouro",
+                    "R$ 20,00"
                 );
 
             }
