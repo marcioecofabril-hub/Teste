@@ -14,7 +14,6 @@
     <title>MDS_TI | Pagamento Pix</title>
 
     <!-- PREVIA DO LINK PARA WHATSAPP -->
-
     <meta
         property="og:title"
         content="MDS_TI | Pagamento Pix"
@@ -70,8 +69,7 @@
         content="MDS_TI"
     >
 
-    <!-- PREVIA PARA OUTROS SERVICOS -->
-
+    <!-- TWITTER / OUTROS SERVICOS -->
     <meta
         name="twitter:card"
         content="summary_large_image"
@@ -93,16 +91,28 @@
     >
 
     <!-- CSS PRINCIPAL -->
-
-    {{ url_for('static', filename='style.css') }}
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
 
     <style>
+
+        .payment-message {
+            margin: 4px auto 0;
+            max-width: 520px;
+            text-align: center;
+            font-size: 14px;
+            line-height: 1.55;
+            color: #aebed0;
+        }
 
         .plans-title {
             margin: 0 0 14px;
             text-align: center;
-            font-size: 14px;
-            font-weight: 700;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 1px;
             color: #d9e3f0;
         }
 
@@ -124,14 +134,21 @@
         }
 
         .plan-card {
-            display: block;
+            display: flex;
+            min-height: 155px;
             padding: 18px 12px;
             border: 2px solid #26384d;
             border-radius: 14px;
-            text-align: center;
             cursor: pointer;
-            transition: 0.2s ease;
             background: #0c1b2e;
+            text-align: center;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition:
+                transform 0.2s ease,
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
         }
 
         .plan-card:hover {
@@ -141,12 +158,12 @@
         .plan-icon {
             display: block;
             margin-bottom: 6px;
-            font-size: 28px;
+            font-size: 27px;
         }
 
         .plan-name {
             display: block;
-            margin-bottom: 6px;
+            margin-bottom: 5px;
             font-size: 15px;
             font-weight: 800;
         }
@@ -154,12 +171,13 @@
         .plan-price {
             display: block;
             font-size: 25px;
+            line-height: 1.2;
             font-weight: 800;
         }
 
         .plan-description {
             display: block;
-            margin-top: 6px;
+            margin-top: 7px;
             font-size: 12px;
             opacity: 0.75;
         }
@@ -188,23 +206,53 @@
                 0 8px 24px rgba(0, 0, 0, 0.25);
         }
 
-        .contact-message {
-            margin: 12px 0 0;
-            padding: 14px 16px;
-            border: 1px solid rgba(66, 153, 225, 0.22);
-            border-radius: 12px;
-            color: #cbd5e1;
-            background: rgba(12, 27, 46, 0.72);
-            font-size: 13px;
-            line-height: 1.6;
+        .service-notice {
+            margin: 18px 0 0;
+            padding: 13px 15px;
+            border: 1px solid rgba(76, 148, 220, 0.18);
+            border-radius: 11px;
+            background: rgba(17, 39, 64, 0.65);
             text-align: center;
+            color: #b8c7d9;
+            font-size: 12px;
+            line-height: 1.55;
         }
 
-        .contact-message strong {
+        .service-notice strong {
             color: #ffffff;
         }
 
         @media (max-width: 560px) {
+
+            .plans {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+
+            .plan-card {
+                min-height: 135px;
+                padding: 14px 7px;
+            }
+
+            .plan-icon {
+                font-size: 24px;
+            }
+
+            .plan-name {
+                font-size: 12px;
+            }
+
+            .plan-price {
+                font-size: 20px;
+            }
+
+            .plan-description {
+                font-size: 10px;
+            }
+
+        }
+
+        @media (max-width: 360px) {
 
             .plans {
                 grid-template-columns: 1fr;
@@ -245,19 +293,13 @@
             </p>
 
             <h1 id="hero-price">
-                Pagamento referente ao teste realizado
+                Pagamento do teste
             </h1>
 
-            <p class="description">
-                Selecione o valor correspondente ao teste
+            <p class="payment-message">
+                Pagamento referente ao teste realizado.
+                Selecione abaixo o valor correspondente.
             </p>
-
-            <div class="contact-message">
-                Após o pagamento, envie o
-                <strong>comprovante</strong>.
-                Para os demais serviços, entre em contato
-                pelo <strong>telefone</strong>.
-            </div>
 
         </section>
 
@@ -274,13 +316,12 @@
         <form method="POST">
 
             <p class="plans-title">
-                ESCOLHA O VALOR DO TESTE
+                SELECIONE O VALOR
             </p>
 
             <div class="plans">
 
                 <!-- ACESSO PRATA -->
-
                 <div class="plan-option">
 
                     <input
@@ -292,11 +333,7 @@
                     >
 
                     <label
-                        for="plano-prata"
-                        class="plan-card silver"
-                    >
-
-                        <span class="plan-icon">
+                        for="plano-                <span class="plan-icon">
                             🥈
                         </span>
 
@@ -309,7 +346,7 @@
                         </span>
 
                         <span class="plan-description">
-                            Pagamento do teste
+                            Teste realizado
                         </span>
 
                     </label>
@@ -317,7 +354,6 @@
                 </div>
 
                 <!-- ACESSO OURO -->
-
                 <div class="plan-option">
 
                     <input
@@ -346,7 +382,7 @@
                         </span>
 
                         <span class="plan-description">
-                            Pagamento do teste
+                            Teste realizado
                         </span>
 
                     </label>
@@ -400,7 +436,7 @@
                     </span>
 
                     <strong id="summary-plan">
-                        Selecione Prata ou Ouro
+                        Selecione uma opção
                     </strong>
 
                 </div>
@@ -435,6 +471,13 @@
             </button>
 
         </form>
+
+        <div class="service-notice">
+            Após o pagamento, envie o
+            <strong>comprovante</strong>.
+            Para os demais serviços, entre em contato
+            pelo <strong>telefone</strong>.
+        </div>
 
         <div class="info">
 
@@ -509,7 +552,7 @@
             if (this.checked) {
 
                 selecionarPlano(
-                    "Teste realizado - Prata",
+                    "Acesso Prata",
                     "R$ 15,00"
                 );
 
@@ -526,7 +569,7 @@
             if (this.checked) {
 
                 selecionarPlano(
-                    "Teste realizado - Ouro",
+                    "Acesso Ouro",
                     "R$ 20,00"
                 );
 
