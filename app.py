@@ -19,13 +19,13 @@ MP_API = "https://api.mercadopago.com"
 PLANOS = {
     "prata": {
         "nome": "Acesso Prata",
-        "valor": 10.00,
-        "valor_exibicao": "10,00"
+        "valor": 15.00,
+        "valor_exibicao": "15,00"
     },
     "ouro": {
         "nome": "Acesso Ouro",
-        "valor": 15.00,
-        "valor_exibicao": "15,00"
+        "valor": 20.00,
+        "valor_exibicao": "20,00"
     }
 }
 
