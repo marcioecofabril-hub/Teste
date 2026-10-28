@@ -212,9 +212,7 @@ def home():
     if not payment_id:
         return render_template(
             "message.html",
-            title=(
-                "Pagamento não identificado"
-            ),
+            title="Pagamento não identificado",
             message=(
                 "O Mercado Pago não retornou "
                 "a identificação do pagamento."
@@ -258,9 +256,7 @@ def payment_status(payment_id):
     if not payment_id.isdigit():
         return jsonify({
             "ok": False,
-            "error": (
-                "ID do pagamento inválido."
-            )
+            "error": "ID do pagamento inválido."
         }), 400
 
     try:
