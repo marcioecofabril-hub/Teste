@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -14,12 +15,15 @@
         content="#071426"
     >
 
-    <title>MDS_TI | Pagamento Pix</title>
+    <title>
+        MDS_TI | Pagamento Pix
+    </title>
 
     <link
         rel="stylesheet"
         href="{{ url_for('static', filename='style.css') }}"
     >
+
 </head>
 
 <body>
@@ -40,7 +44,6 @@
 
         </header>
 
-
         <section class="hero">
 
             <div class="pix-icon">
@@ -56,30 +59,53 @@
             </h1>
 
             <p class="description">
-                Pagamento de serviço de TI
+                {{ plano }}
+            </p>
+
+            <p
+                style="
+                    margin:
+                        7px 20px 0;
+
+                    color: #98a2b3;
+
+                    text-align: center;
+
+                    font-size: 12px;
+                    line-height: 1.45;
+                "
+            >
+                {{ descricao_plano }}
             </p>
 
         </section>
 
-
         <div class="divider"></div>
 
-
-        <section style="padding: 22px 26px 28px;">
+        <section
+            style="
+                padding: 22px 26px 28px;
+            "
+        >
 
             <p
                 style="
                     margin: 0 0 16px;
+
                     color: #475467;
+
                     text-align: center;
+
                     font-size: 14px;
                     line-height: 1.5;
                 "
             >
                 Escaneie o QR Code ou utilize
-                <strong>Pix Copia e Cola</strong>.
-            </p>
 
+                <strong>
+                    Pix Copia e Cola
+                </strong>.
+            </p>
 
             <img
                 class="qr"
@@ -87,20 +113,21 @@
                 alt="QR Code Pix"
             >
 
-
             <label
                 for="pix-code"
                 style="
                     display: block;
+
                     margin: 18px 0 8px;
+
                     color: #344054;
+
                     font-size: 13px;
                     font-weight: 700;
                 "
             >
                 Pix Copia e Cola
             </label>
-
 
             <textarea
                 id="pix-code"
@@ -110,30 +137,33 @@
                 autocomplete="off"
             ></textarea>
 
-
             <button
                 id="copy-button"
                 type="button"
             >
+
                 <span id="copy-button-text">
                     📋 Copiar código Pix
                 </span>
-            </button>
 
+            </button>
 
             <div
                 id="copy-feedback"
                 aria-live="polite"
                 style="
                     min-height: 22px;
+
                     margin-top: 8px;
+
                     color: #067647;
+
                     text-align: center;
+
                     font-size: 12px;
                     font-weight: 700;
                 "
             ></div>
-
 
             <div
                 id="payment-status"
@@ -143,62 +173,102 @@
                 Aguardando pagamento...
             </div>
 
-
             <button
                 id="check-button"
                 type="button"
                 style="
                     margin-top: 12px;
+
                     background: #071426;
+
                     box-shadow: none;
                 "
             >
                 🔄 Verificar pagamento agora
             </button>
 
-
             <div
                 id="approved-box"
                 style="
                     display: none;
+
                     margin-top: 18px;
                     padding: 20px;
+
                     border: 1px solid #abefc6;
                     border-radius: 14px;
+
                     background: #ecfdf3;
                     color: #067647;
+
                     text-align: center;
                 "
             >
 
-                <div style="font-size: 38px;">
+                <div
+                    style="
+                        font-size: 38px;
+                    "
+                >
                     ✓
                 </div>
 
-                <strong style="font-size: 18px;">
+                <strong
+                    style="
+                        font-size: 18px;
+                    "
+                >
                     Pagamento confirmado!
                 </strong>
 
                 <p
                     id="approved-value"
-                    style="margin: 8px 0 0;"
+                    style="
+                        margin: 8px 0 0;
+                    "
                 >
                     Pagamento recebido.
                 </p>
 
-            </div>
+                {% if inclui_tivetv %}
 
+                    <p
+                        style="
+                            margin: 10px 0 0;
+
+                            padding: 10px;
+
+                            border: 1px solid #abefc6;
+                            border-radius: 9px;
+
+                            background: #ffffff;
+
+                            font-size: 13px;
+                            font-weight: 800;
+                        "
+                    >
+                        ✓ Este plano inclui licença
+                        do APP TiveTV.
+                    </p>
+
+                {% endif %}
+
+            </div>
 
             <div
                 id="rejected-box"
                 style="
                     display: none;
+
                     margin-top: 18px;
                     padding: 16px;
+
                     border: 1px solid #fecdca;
                     border-radius: 12px;
+
                     background: #fef3f2;
                     color: #b42318;
+
                     text-align: center;
                 "
             >
@@ -209,16 +279,18 @@
 
                 <p
                     id="rejected-message"
-                    style="margin: 7px 0 0;"
+                    style="
+                        margin: 7px 0 0;
+                    "
                 ></p>
 
             </div>
-
 
             <div
                 style="
                     margin-top: 25px;
                     padding-top: 22px;
+
                     border-top: 1px solid #e4e7ec;
                 "
             >
@@ -226,8 +298,11 @@
                 <p
                     style="
                         margin: 0 0 12px;
+
                         color: #344054;
+
                         text-align: center;
+
                         font-size: 14px;
                         font-weight: 700;
                     "
@@ -235,59 +310,83 @@
                     Já realizou o pagamento?
                 </p>
 
-
                 <input
                     id="receipt-input"
                     type="file"
                     accept="image/*,.pdf"
                     style="
                         position: absolute;
+
                         left: -9999px;
+
                         width: 1px;
                         height: 1px;
+
                         opacity: 0;
                     "
                 >
-
 
                 <label
                     id="receipt-label"
                     for="receipt-input"
                     style="
                         width: 100%;
+
+                        box-sizing: border-box;
+
                         display: flex;
+
                         align-items: center;
                         justify-content: center;
+
                         padding: 15px 18px;
+
                         border: 1px solid #087cf0;
                         border-radius: 12px;
+
                         background: #ffffff;
                         color: #087cf0;
+
                         font-size: 15px;
                         font-weight: 700;
+
                         cursor: pointer;
                     "
                 >
-                    📎 Selecionar lay: none;
+                    📎 Selecionar comprovante
+                </label>
+
+                <div
+                    id="receipt-info"
+                    style="
+                        display: none;
+
                         margin-top: 10px;
                         padding: 11px;
+
                         border-radius: 9px;
+
                         background: #f8fafc;
                         color: #475467;
+
                         text-align: center;
+
                         font-size: 12px;
+
                         overflow-wrap: anywhere;
                     "
                 ></div>
-
 
                 <button
                     id="share-button"
                     type="button"
                     style="
                         display: none;
+
                         margin-top: 12px;
+
                         background: #16a34a;
+
                         box-shadow: none;
                     "
                 >
@@ -295,7 +394,6 @@
                 </button>
 
             </div>
-
 
             <div class="info">
 
@@ -305,19 +403,26 @@
 
                 <p>
                     No mesmo celular, toque em
-                    <strong>Copiar código Pix</strong>
+
+                    <strong>
+                        Copiar código Pix
+                    </strong>
+
                     e cole no aplicativo do banco.
                 </p>
 
             </div>
 
-
             <p
                 style="
                     margin-top: 18px;
+
                     color: #98a2b3;
+
                     text-align: center;
+
                     font-size: 10px;
+
                     overflow-wrap: anywhere;
                 "
             >
@@ -326,7 +431,6 @@
             </p>
 
         </section>
-
 
         <footer>
 
@@ -348,23 +452,23 @@
 
 </div>
 
-
 <script>
+
 (function () {
 
     "use strict";
 
-
-    /*
-     * O código exibido e o código copiado
-     * usam esta mesma variável.
-     */
     const PIX_CODE =
         {{ qr_code | tojson }};
 
     const PAYMENT_ID =
         {{ payment_id | tojson }};
 
+    const PAYMENT_AMOUNT =
+        {{ amount | tojson }};
+
+    const PAYMENT_PLAN =
+        {{ plano | tojson }};
 
     const pixField =
         document.getElementById(
@@ -432,16 +536,18 @@
         );
 
 
-    let selectedReceipt = null;
-    let checkingPayment = false;
-    let paymentFinished = false;
+    let selectedReceipt =
+        null;
+
+    let checkingPayment =
+        false;
+
+    let paymentFinished =
+        false;
 
 
-    /*
-     * O campo recebe exatamente o mesmo
-     * valor que será copiado pelo botão.
-     */
-    pixField.value = PIX_CODE;
+    pixField.value =
+        PIX_CODE;
 
 
     function showCopySuccess() {
@@ -453,26 +559,33 @@
             PIX_CODE.slice(-12);
 
         copyFeedback.textContent =
-            "Código copiado. Final: " +
-            ending;
+            (
+                "Código copiado. Final: "
+                + ending
+            );
 
         copyFeedback.style.color =
             "#067647";
 
+        setTimeout(
+            function () {
 
-        setTimeout(function () {
+                copyButtonText.textContent =
+                    "📋 Copiar código Pix";
 
-            copyButtonText.textContent =
-                "📋 Copiar código Pix";
-
-        }, 2500);
+            },
+            2500
+        );
     }
 
 
     function showCopyError() {
 
         copyFeedback.textContent =
-            "Cópia automática bloqueada. O código foi selecionado.";
+            (
+                "Cópia automática bloqueada. " +
+                "O código foi selecionado."
+            );
 
         copyFeedback.style.color =
             "#b42318";
@@ -492,12 +605,11 @@
             return;
         }
 
-
         try {
 
             if (
-                navigator.clipboard &&
-                window.isSecureContext
+                navigator.clipboard
+                && window.isSecureContext
             ) {
 
                 await navigator
@@ -514,11 +626,10 @@
         } catch (error) {
 
             console.log(
-                "Clipboard API indisponível:",
+                "Clipboard indisponível:",
                 error
             );
         }
-
 
         const temporaryField =
             document.createElement(
@@ -545,12 +656,12 @@
         temporaryField.style.opacity =
             "0";
 
-
         document.body.appendChild(
             temporaryField
         );
 
         temporaryField.focus();
+
         temporaryField.select();
 
         temporaryField.setSelectionRange(
@@ -558,9 +669,8 @@
             PIX_CODE.length
         );
 
-
-        let copied = false;
-
+        let copied =
+            false;
 
         try {
 
@@ -571,14 +681,13 @@
 
         } catch (error) {
 
-            copied = false;
+            copied =
+                false;
         }
-
 
         document.body.removeChild(
             temporaryField
         );
-
 
         if (copied) {
 
@@ -587,6 +696,7 @@
         } else {
 
             pixField.focus();
+
             pixField.select();
 
             pixField.setSelectionRange(
@@ -602,13 +712,13 @@
     function formatMoney(value) {
 
         if (
-            value === null ||
-            value === undefined ||
-            value === ""
+            value === null
+            || value === undefined
+            || value === ""
         ) {
+
             return "";
         }
-
 
         return Number(value)
             .toLocaleString(
@@ -624,16 +734,18 @@
     async function checkPayment() {
 
         if (
-            checkingPayment ||
-            paymentFinished
+            checkingPayment
+            || paymentFinished
         ) {
+
             return;
         }
 
+        checkingPayment =
+            true;
 
-        checkingPayment = true;
-
-        checkButton.disabled = true;
+        checkButton.disabled =
+            true;
 
         paymentStatus.textContent =
             "Consultando pagamento...";
@@ -641,22 +753,23 @@
         paymentStatus.className =
             "pending";
 
-
         try {
 
             const response =
                 await fetch(
                     (
-                        "/api/status/" +
-                        encodeURIComponent(
+                        "/api/status/"
+                        + encodeURIComponent(
                             PAYMENT_ID
-                        ) +
-                        "?nocache=" +
-                        Date.now()
+                        )
+                        + "?nocache="
+                        + Date.now()
                     ),
                     {
                         method: "GET",
+
                         cache: "no-store",
+
                         headers: {
                             "Accept":
                                 "application/json"
@@ -664,9 +777,7 @@
                     }
                 );
 
-
             let data = {};
-
 
             try {
 
@@ -678,24 +789,23 @@
                 data = {};
             }
 
-
             if (
-                !response.ok ||
-                !data.ok
+                !response.ok
+                || !data.ok
             ) {
 
                 throw new Error(
-                    data.error ||
-                    "Falha na consulta."
+                    data.error
+                    || "Falha na consulta."
                 );
             }
-
 
             if (
                 data.status === "approved"
             ) {
 
-                paymentFinished = true;
+                paymentFinished =
+                    true;
 
                 paymentStatus.textContent =
                     "✓ Pagamento aprovado!";
@@ -712,27 +822,23 @@
                 approvedBox.style.display =
                     "block";
 
-
                 const amount =
                     formatMoney(
                         data.transaction_amount
                     );
 
-
                 approvedValue.textContent =
                     amount
-                        ? (
-                            "Valor pago: " +
-                            amount
-                        )
-                        : (
-                            "Pagamento recebido."
-                        );
-
+                    ? (
+                        "Valor pago: "
+                        + amount
+                    )
+                    : (
+                        "Pagamento recebido."
+                    );
 
                 return;
             }
-
 
             if (
                 data.status === "rejected"
@@ -748,8 +854,13 @@
                     "block";
 
                 rejectedMessage.textContent =
-                    data.status_detail ||
-                    "O pagamento foi recusado.";
+                    (
+                        data.status_detail
+                        || (
+                            "O pagamento "
+                            + "foi recusado."
+                        )
+                    );
 
             } else if (
                 data.status === "cancelled"
@@ -765,8 +876,13 @@
                     "block";
 
                 rejectedMessage.textContent =
-                    data.status_detail ||
-                    "O pagamento foi cancelado.";
+                    (
+                        data.status_detail
+                        || (
+                            "O pagamento "
+                            + "foi cancelado."
+                        )
+                    );
 
             } else {
 
@@ -775,13 +891,18 @@
 
                 paymentStatus.className =
                     "pending";
-            }
 
+                rejectedBox.style.display =
+                    "none";
+            }
 
         } catch (error) {
 
             paymentStatus.textContent =
-                "Não foi possível verificar agora.";
+                (
+                    "Não foi possível "
+                    + "verificar agora."
+                );
 
             paymentStatus.className =
                 "error";
@@ -793,7 +914,8 @@
 
         } finally {
 
-            checkingPayment = false;
+            checkingPayment =
+                false;
 
             if (!paymentFinished) {
 
@@ -809,10 +931,10 @@
         const file =
             receiptInput.files[0];
 
-
         if (!file) {
 
-            selectedReceipt = null;
+            selectedReceipt =
+                null;
 
             receiptInfo.style.display =
                 "none";
@@ -823,12 +945,14 @@
             return;
         }
 
-
-        selectedReceipt = file;
+        selectedReceipt =
+            file;
 
         receiptInfo.textContent =
-            "✓ Arquivo selecionado: " +
-            file.name;
+            (
+                "✓ Arquivo selecionado: "
+                + file.name
+            );
 
         receiptInfo.style.display =
             "block";
@@ -849,25 +973,27 @@
             return;
         }
 
-
         const shareData = {
             title: "Comprovante MDS_TI",
+
             text: (
                 "Comprovante do pagamento "
-                + "MDS_TI - R$ 10,00"
+                + PAYMENT_PLAN
+                + " - R$ "
+                + PAYMENT_AMOUNT
             ),
+
             files: [
                 selectedReceipt
             ]
         };
 
-
         try {
 
             if (
-                navigator.share &&
-                navigator.canShare &&
-                navigator.canShare(
+                navigator.share
+                && navigator.canShare
+                && navigator.canShare(
                     shareData
                 )
             ) {
@@ -879,7 +1005,14 @@
             } else {
 
                 alert(
-                    "O arquivo foi selecionado, mas este navegador não permite compartilhar anexos diretamente. Abra o WhatsApp e envie o comprovante normalmente."
+                    (
+                        "O arquivo foi selecionado, "
+                        + "mas este navegador não "
+                        + "permite compartilhar "
+                        + "anexos diretamente. "
+                        + "Abra o WhatsApp e envie "
+                        + "o comprovante normalmente."
+                    )
                 );
             }
 
@@ -890,7 +1023,11 @@
             ) {
 
                 alert(
-                    "Não foi possível compartilhar o comprovante."
+                    (
+                        "Não foi possível "
+                        + "compartilhar "
+                        + "o comprovante."
+                    )
                 );
             }
         }
@@ -926,9 +1063,9 @@
         function () {
 
             if (
-                document.visibilityState ===
-                "visible" &&
-                !paymentFinished
+                document.visibilityState
+                === "visible"
+                && !paymentFinished
             ) {
 
                 checkPayment();
@@ -962,13 +1099,12 @@
 
                 checkPayment();
             }
-
         },
         5000
     );
 
-
 })();
+
 </script>
 
 </body>
