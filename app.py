@@ -15,25 +15,114 @@ from flask import (
 )
 
 
+# ============================================================
+# APLICAÇÃO
+# ============================================================
+
 app = Flask(__name__)
 
+
+# ============================================================
+# LEITURA SEGURA DE VARIÁVEIS DE AMBIENTE
+# ============================================================
+
+def get_environment_value(variable_name):
+    """
+    Procura primeiro pelo nome exato.
+
+    Se não encontrar, procura novamente removendo espaços
+    e normalizando letras maiúsculas. Isso ajuda quando uma
+    variável foi cadastrada com espaço invisível no Render.
+    """
+
+    exact_value = os.environ.get(
+        variable_name
+    )
+
+    if exact_value is not None:
+
+        exact_value = str(
+            exact_value
+        ).strip()
+
+        if exact_value:
+
+            return exact_value
+
+    normalized_name = (
+        variable_name
+        .strip()
+        .upper()
+    )
+
+    for key, value in os.environ.items():
+
+        normalized_key = (
+            str(key)
+            .strip()
+            .upper()
+        )
+
+        if normalized_key != normalized_name:
+            continue
+
+        normalized_value = str(
+            value or ""
+        ).strip()
+
+        if normalized_value:
+
+            return normalized_value
+
+    return ""
+
+
+# ============================================================
+# CHAVE DA SESSÃO FLASK
+# ============================================================
+
+configured_flask_secret = (
+    get_environment_value(
+        "FLASK_SECRET_KEY"
+    )
+)
+
 app.secret_key = (
-    os.environ.get(
-        "FLASK_SECRET_KEY",
-        ""
-    ).strip()
+    configured_flask_secret
     or os.urandom(32)
 )
 
-
-MP_API = "https://api.mercadopago.com"
-
-PROMO_STATE_FILE = os.environ.get(
-    "PROMO_STATE_FILE",
-    "promo_state.json"
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+    SESSION_COOKIE_SECURE=(
+        os.environ.get(
+            "RENDER",
+            ""
+        ).strip().lower()
+        == "true"
+    )
 )
 
-PROMO_STATE_LOCK = threading.Lock()
+
+# ============================================================
+# CONFIGURAÇÕES
+# ============================================================
+
+MP_API = (
+    "https://api.mercadopago.com"
+)
+
+PROMO_STATE_FILE = (
+    get_environment_value(
+        "PROMO_STATE_FILE"
+    )
+    or "promo_state.json"
+)
+
+PROMO_STATE_LOCK = (
+    threading.Lock()
+)
 
 
 # ============================================================
@@ -93,15 +182,14 @@ PLANOS_PROMOCIONAIS = {
 
 
 # ============================================================
-# CONFIGURAÇÕES DO MERCADO PAGO
+# MERCADO PAGO
 # ============================================================
 
 def mp_token():
 
-    token = os.environ.get(
-        "MP_ACCESS_TOKEN",
-        ""
-    ).strip()
+    token = get_environment_value(
+        "MP_ACCESS_TOKEN"
+    )
 
     if not token:
 
@@ -118,7 +206,9 @@ def mercado_pago_headers():
         "Authorization": (
             f"Bearer {mp_token()}"
         ),
-        "Content-Type": "application/json"
+        "Content-Type": (
+            "application/json"
+        )
     }
 
 
@@ -128,10 +218,9 @@ def mercado_pago_headers():
 
 def promotion_password():
 
-    password = os.environ.get(
-        "PROMO_PASSWORD",
-        ""
-    ).strip()
+    password = get_environment_value(
+        "PROMO_PASSWORD"
+    )
 
     if not password:
 
@@ -158,7 +247,9 @@ def read_promotion_state():
                 encoding="utf-8"
             ) as file:
 
-                data = json.load(file)
+                data = json.load(
+                    file
+                )
 
                 return bool(
                     data.get(
@@ -170,7 +261,8 @@ def read_promotion_state():
         except (
             FileNotFoundError,
             json.JSONDecodeError,
-            OSError
+            OSError,
+            TypeError
         ):
 
             return False
@@ -180,6 +272,7 @@ def save_promotion_state(active):
 
     data = {
         "active": bool(active),
+
         "updated_at": datetime.now(
             timezone.utc
         ).isoformat()
@@ -247,24 +340,34 @@ def home():
 
         return render_template(
             "pay_simple.html",
-            promotion_active=promotion_active,
+
+            promotion_active=(
+                promotion_active
+            ),
+
             admin_authenticated=(
                 admin_authenticated
             )
         )
 
     nome = (
-        request.form.get("name")
+        request.form.get(
+            "name"
+        )
         or ""
     ).strip()[:80]
 
     email = (
-        request.form.get("email")
+        request.form.get(
+            "email"
+        )
         or ""
     ).strip().lower()[:150]
 
     selected_plan = (
-        request.form.get("plano")
+        request.form.get(
+            "plano"
+        )
         or ""
     ).strip().lower()
 
@@ -272,19 +375,29 @@ def home():
         "promotion_active": (
             promotion_active
         ),
+
         "admin_authenticated": (
             admin_authenticated
         ),
+
         "nome": nome,
+
         "email": email,
-        "selected_plan": selected_plan
+
+        "selected_plan": (
+            selected_plan
+        )
     }
 
     if not nome:
 
         return render_template(
             "pay_simple.html",
-            error="Informe seu nome.",
+
+            error=(
+                "Informe seu nome."
+            ),
+
             **template_data
         ), 400
 
@@ -295,7 +408,11 @@ def home():
 
         return render_template(
             "pay_simple.html",
-            error="Informe um e-mail válido.",
+
+            error=(
+                "Informe um e-mail válido."
+            ),
+
             **template_data
         ), 400
 
@@ -305,30 +422,38 @@ def home():
 
         return render_template(
             "pay_simple.html",
+
             error=(
                 "O plano selecionado não está "
                 "disponível neste momento."
             ),
+
             **template_data
         ), 400
 
-    plan = plans[selected_plan]
+    plan = plans[
+        selected_plan
+    ]
 
-    value = plan["valor"]
+    value = plan[
+        "valor"
+    ]
 
-    plan_name = plan["nome"]
+    plan_name = plan[
+        "nome"
+    ]
 
-    displayed_value = (
-        plan["valor_exibicao"]
-    )
+    displayed_value = plan[
+        "valor_exibicao"
+    ]
 
-    plan_description = (
-        plan["descricao"]
-    )
+    plan_description = plan[
+        "descricao"
+    ]
 
-    includes_tivetv = (
-        plan["inclui_tivetv"]
-    )
+    includes_tivetv = plan[
+        "inclui_tivetv"
+    ]
 
     external_reference = (
         f"MDS-TI-"
@@ -357,30 +482,61 @@ def home():
 
         "metadata": {
             "cliente_nome": nome,
+
             "cliente_email": email,
-            "plano_id": selected_plan,
-            "plano_nome": plan_name,
+
+            "plano_id": (
+                selected_plan
+            ),
+
+            "plano_nome": (
+                plan_name
+            ),
+
             "promocional": (
                 plan["promocional"]
             ),
+
             "inclui_tivetv": (
                 includes_tivetv
             )
         }
     }
 
-    headers = mercado_pago_headers()
+    try:
 
-    headers["X-Idempotency-Key"] = str(
+        headers = (
+            mercado_pago_headers()
+        )
+
+    except RuntimeError as error:
+
+        return render_template(
+            "pay_simple.html",
+
+            error=str(error),
+
+            **template_data
+        ), 503
+
+    headers[
+        "X-Idempotency-Key"
+    ] = str(
         uuid.uuid4()
     )
 
     try:
 
         response = requests.post(
-            f"{MP_API}/v1/payments",
+            (
+                f"{MP_API}"
+                f"/v1/payments"
+            ),
+
             json=payload,
+
             headers=headers,
+
             timeout=20
         )
 
@@ -388,10 +544,12 @@ def home():
 
         return render_template(
             "pay_simple.html",
+
             error=(
                 "Não foi possível comunicar "
                 "com o Mercado Pago."
             ),
+
             **template_data
         ), 502
 
@@ -403,10 +561,12 @@ def home():
 
         return render_template(
             "pay_simple.html",
+
             error=(
                 "O Mercado Pago retornou "
                 "uma resposta inválida."
             ),
+
             **template_data
         ), 502
 
@@ -420,10 +580,15 @@ def home():
             "Pagamento não criado."
         )
 
-        causes = data.get("cause")
+        causes = data.get(
+            "cause"
+        )
 
         if (
-            isinstance(causes, list)
+            isinstance(
+                causes,
+                list
+            )
             and causes
             and isinstance(
                 causes[0],
@@ -443,9 +608,11 @@ def home():
 
         return render_template(
             "pay_simple.html",
+
             error=(
                 f"Mercado Pago: {detail}"
             ),
+
             **template_data
         ), 400
 
@@ -478,7 +645,9 @@ def home():
     ).strip()
 
     payment_id = str(
-        data.get("id")
+        data.get(
+            "id"
+        )
         or ""
     ).strip()
 
@@ -486,9 +655,11 @@ def home():
 
         return render_template(
             "message.html",
+
             title=(
                 "Pagamento não identificado"
             ),
+
             message=(
                 "O Mercado Pago não retornou "
                 "a identificação do pagamento."
@@ -499,9 +670,11 @@ def home():
 
         return render_template(
             "message.html",
+
             title=(
                 "Código Pix indisponível"
             ),
+
             message=(
                 "O Mercado Pago não retornou "
                 "o código Pix."
@@ -512,9 +685,11 @@ def home():
 
         return render_template(
             "message.html",
+
             title=(
                 "QR Code indisponível"
             ),
+
             message=(
                 "O Mercado Pago não retornou "
                 "a imagem do QR Code."
@@ -523,22 +698,39 @@ def home():
 
     return render_template(
         "pix.html",
-        amount=displayed_value,
-        plano=plan_name,
+
+        amount=(
+            displayed_value
+        ),
+
+        plano=(
+            plan_name
+        ),
+
         descricao_plano=(
             plan_description
         ),
+
         inclui_tivetv=(
             includes_tivetv
         ),
-        qr_code=qr_code,
-        qr_base64=qr_base64,
-        payment_id=payment_id
+
+        qr_code=(
+            qr_code
+        ),
+
+        qr_base64=(
+            qr_base64
+        ),
+
+        payment_id=(
+            payment_id
+        )
     )
 
 
 # ============================================================
-# LOGIN ADMINISTRATIVO DA PROMOÇÃO
+# LOGIN ADMINISTRATIVO
 # ============================================================
 
 @app.post(
@@ -554,9 +746,21 @@ def promotion_login():
     )
 
     received_password = str(
-        data.get("password")
+        data.get(
+            "password"
+        )
         or ""
-    )
+    ).strip()
+
+    if not received_password:
+
+        return jsonify({
+            "ok": False,
+
+            "error": (
+                "Informe a senha."
+            )
+        }), 400
 
     try:
 
@@ -568,15 +772,23 @@ def promotion_login():
 
         return jsonify({
             "ok": False,
-            "error": str(error)
+
+            "error": str(error),
+
+            "environment_detected": {
+                "promo_password": bool(
+                    get_environment_value(
+                        "PROMO_PASSWORD"
+                    )
+                ),
+
+                "flask_secret": bool(
+                    get_environment_value(
+                        "FLASK_SECRET_KEY"
+                    )
+                )
+            }
         }), 503
-
-    if not received_password:
-
-        return jsonify({
-            "ok": False,
-            "error": "Informe a senha."
-        }), 400
 
     if not hmac.compare_digest(
         received_password,
@@ -585,7 +797,10 @@ def promotion_login():
 
         return jsonify({
             "ok": False,
-            "error": "Senha incorreta."
+
+            "error": (
+                "Senha incorreta."
+            )
         }), 401
 
     session[
@@ -596,9 +811,11 @@ def promotion_login():
 
     return jsonify({
         "ok": True,
+
         "active": (
             read_promotion_state()
         ),
+
         "message": (
             "Acesso administrativo liberado."
         )
@@ -621,6 +838,7 @@ def promotion_toggle():
 
         return jsonify({
             "ok": False,
+
             "error": (
                 "Acesso administrativo "
                 "não autorizado."
@@ -639,10 +857,19 @@ def promotion_toggle():
             new_state
         )
 
-    except OSError:
+    except OSError as error:
+
+        app.logger.error(
+            (
+                "Erro ao salvar o estado "
+                "da promoção: %s"
+            ),
+            error
+        )
 
         return jsonify({
             "ok": False,
+
             "error": (
                 "Não foi possível salvar "
                 "o estado da promoção."
@@ -651,7 +878,9 @@ def promotion_toggle():
 
     return jsonify({
         "ok": True,
+
         "active": new_state,
+
         "message": (
             "Promoção ativada com sucesso."
             if new_state
@@ -691,9 +920,11 @@ def promotion_status():
 
     return jsonify({
         "ok": True,
+
         "active": (
             read_promotion_state()
         ),
+
         "admin_authenticated": bool(
             session.get(
                 "promotion_admin",
@@ -705,6 +936,8 @@ def promotion_status():
 
 # ============================================================
 # CONSULTAR STATUS DO PAGAMENTO
+# ATENÇÃO: AQUI PRECISA SER <payment_id>
+# NÃO USE &lt;payment_id&gt;
 # ============================================================
 
 @app.get(
@@ -716,6 +949,7 @@ def payment_status(payment_id):
 
         return jsonify({
             "ok": False,
+
             "error": (
                 "ID do pagamento inválido."
             )
@@ -723,14 +957,29 @@ def payment_status(payment_id):
 
     try:
 
+        headers = (
+            mercado_pago_headers()
+        )
+
+    except RuntimeError as error:
+
+        return jsonify({
+            "ok": False,
+
+            "error": str(error)
+        }), 503
+
+    try:
+
         response = requests.get(
             (
-                f"{MP_API}/v1/payments/"
+                f"{MP_API}"
+                f"/v1/payments/"
                 f"{payment_id}"
             ),
-            headers=(
-                mercado_pago_headers()
-            ),
+
+            headers=headers,
+
             timeout=15
         )
 
@@ -738,6 +987,7 @@ def payment_status(payment_id):
 
         return jsonify({
             "ok": False,
+
             "error": (
                 "Não foi possível consultar "
                 "o Mercado Pago."
@@ -752,6 +1002,7 @@ def payment_status(payment_id):
 
         return jsonify({
             "ok": False,
+
             "error": (
                 "Resposta inválida "
                 "do Mercado Pago."
@@ -762,6 +1013,7 @@ def payment_status(payment_id):
 
         return jsonify({
             "ok": False,
+
             "error": data.get(
                 "message",
                 "Pagamento não encontrado."
@@ -781,6 +1033,7 @@ def payment_status(payment_id):
 
         return jsonify({
             "ok": False,
+
             "error": (
                 "Pagamento não pertence "
                 "a esta aplicação."
@@ -795,7 +1048,9 @@ def payment_status(payment_id):
     )
 
     metadata = (
-        data.get("metadata")
+        data.get(
+            "metadata"
+        )
         or {}
     )
 
@@ -803,7 +1058,9 @@ def payment_status(payment_id):
         "ok": True,
 
         "payment_id": str(
-            data.get("id")
+            data.get(
+                "id"
+            )
             or ""
         ),
 
@@ -854,24 +1111,60 @@ def payment_status(payment_id):
 
 # ============================================================
 # HEALTH CHECK
+# NÃO MOSTRA SENHAS OU TOKENS
+# MOSTRA SOMENTE TRUE OU FALSE
 # ============================================================
 
-@app.get("/health")
+@app.get(
+    "/health"
+)
 def health():
+
+    promo_password_exists = bool(
+        get_environment_value(
+            "PROMO_PASSWORD"
+        )
+    )
+
+    flask_secret_exists = bool(
+        get_environment_value(
+            "FLASK_SECRET_KEY"
+        )
+    )
+
+    mp_token_exists = bool(
+        get_environment_value(
+            "MP_ACCESS_TOKEN"
+        )
+    )
 
     return jsonify({
         "ok": True,
+
         "promotion_active": (
             read_promotion_state()
         ),
+
+        "promo_password_exists": (
+            promo_password_exists
+        ),
+
+        "flask_secret_exists": (
+            flask_secret_exists
+        ),
+
+        "mp_token_exists": (
+            mp_token_exists
+        ),
+
         "time": datetime.now(
             timezone.utc
         ).isoformat()
-    })
+    }), 200
 
 
 # ============================================================
-# ERROS
+# ERRO 404
 # ============================================================
 
 @app.errorhandler(404)
@@ -879,19 +1172,38 @@ def page_not_found(error):
 
     return render_template(
         "message.html",
-        title="Página não encontrada",
+
+        title=(
+            "Página não encontrada"
+        ),
+
         message=(
             "O endereço acessado não existe."
         )
     ), 404
 
 
+# ============================================================
+# ERRO 500
+# ============================================================
+
 @app.errorhandler(500)
 def internal_error(error):
 
+    app.logger.error(
+        (
+            "Erro interno da aplicação: %s"
+        ),
+        error
+    )
+
     return render_template(
         "message.html",
-        title="Erro interno",
+
+        title=(
+            "Erro interno"
+        ),
+
         message=(
             "Não foi possível concluir "
             "a solicitação."
@@ -900,7 +1212,7 @@ def internal_error(error):
 
 
 # ============================================================
-# INICIALIZAÇÃO
+# INICIALIZAÇÃO LOCAL
 # ============================================================
 
 if __name__ == "__main__":
