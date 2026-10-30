@@ -27,13 +27,6 @@ app = Flask(__name__)
 # ============================================================
 
 def get_environment_value(variable_name):
-    """
-    Procura primeiro pelo nome exato.
-
-    Se não encontrar, procura novamente removendo espaços
-    e normalizando letras maiúsculas. Isso ajuda quando uma
-    variável foi cadastrada com espaço invisível no Render.
-    """
 
     exact_value = os.environ.get(
         variable_name
@@ -79,10 +72,16 @@ def get_environment_value(variable_name):
 
 # ============================================================
 # CHAVE DA SESSÃO FLASK
+#
+# O RENDER ORIGINAL USA SECRET_KEY.
+# A APLICAÇÃO TAMBÉM ACEITA FLASK_SECRET_KEY.
 # ============================================================
 
 configured_flask_secret = (
     get_environment_value(
+        "SECRET_KEY"
+    )
+    or get_environment_value(
         "FLASK_SECRET_KEY"
     )
 )
@@ -95,12 +94,10 @@ app.secret_key = (
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE="Lax",
-    SESSION_COOKIE_SECURE=(
+    SESSION_COOKIE_SECURE=bool(
         os.environ.get(
-            "RENDER",
-            ""
-        ).strip().lower()
-        == "true"
+            "RENDER"
+        )
     )
 )
 
@@ -127,6 +124,8 @@ PROMO_STATE_LOCK = (
 
 # ============================================================
 # PLANOS NORMAIS
+#
+# ESTES PLANOS FICAM SEMPRE DISPONÍVEIS.
 # ============================================================
 
 PLANOS_NORMAIS = {
@@ -151,28 +150,31 @@ PLANOS_NORMAIS = {
 
 
 # ============================================================
-# PLANOS PROMOCIONAIS
+# PLANOS PROMOCIONAIS TRIMESTRAIS
+#
+# ESTES PLANOS APARECEM SOMENTE QUANDO A PROMOÇÃO
+# ESTIVER ATIVADA.
 # ============================================================
 
 PLANOS_PROMOCIONAIS = {
-    "prata_semestral": {
-        "nome": "Prata Semestral",
+    "prata_trimestral": {
+        "nome": "Prata Trimestral",
         "valor": 40.00,
         "valor_exibicao": "40,00",
         "descricao": (
-            "Acesso por 6 meses, "
+            "Acesso por 3 meses, "
             "sem licença do APP TiveTV"
         ),
         "inclui_tivetv": False,
         "promocional": True
     },
 
-    "ouro_semestral": {
-        "nome": "Ouro Semestral",
+    "ouro_trimestral": {
+        "nome": "Ouro Trimestral",
         "valor": 50.00,
         "valor_exibicao": "50,00",
         "descricao": (
-            "Acesso por 6 meses, "
+            "Acesso por 3 meses, "
             "com licença do APP TiveTV"
         ),
         "inclui_tivetv": True,
@@ -271,7 +273,9 @@ def read_promotion_state():
 def save_promotion_state(active):
 
     data = {
-        "active": bool(active),
+        "active": bool(
+            active
+        ),
 
         "updated_at": datetime.now(
             timezone.utc
@@ -303,13 +307,33 @@ def save_promotion_state(active):
         )
 
 
+# ============================================================
+# PLANOS DISPONÍVEIS
+#
+# PROMOÇÃO DESATIVADA:
+# - PRATA R$ 15
+# - OURO R$ 20
+#
+# PROMOÇÃO ATIVADA:
+# - PRATA R$ 15
+# - OURO R$ 20
+# - PRATA TRIMESTRAL R$ 40
+# - OURO TRIMESTRAL R$ 50
+# ============================================================
+
 def available_plans():
+
+    plans = dict(
+        PLANOS_NORMAIS
+    )
 
     if read_promotion_state():
 
-        return PLANOS_PROMOCIONAIS
+        plans.update(
+            PLANOS_PROMOCIONAIS
+        )
 
-    return PLANOS_NORMAIS
+    return plans
 
 
 # ============================================================
@@ -514,7 +538,9 @@ def home():
         return render_template(
             "pay_simple.html",
 
-            error=str(error),
+            error=str(
+                error
+            ),
 
             **template_data
         ), 503
@@ -773,21 +799,9 @@ def promotion_login():
         return jsonify({
             "ok": False,
 
-            "error": str(error),
-
-            "environment_detected": {
-                "promo_password": bool(
-                    get_environment_value(
-                        "PROMO_PASSWORD"
-                    )
-                ),
-
-                "flask_secret": bool(
-                    get_environment_value(
-                        "FLASK_SECRET_KEY"
-                    )
-                )
-            }
+            "error": str(
+                error
+            )
         }), 503
 
     if not hmac.compare_digest(
@@ -849,7 +863,9 @@ def promotion_toggle():
         read_promotion_state()
     )
 
-    new_state = not current_state
+    new_state = not (
+        current_state
+    )
 
     try:
 
@@ -936,8 +952,10 @@ def promotion_status():
 
 # ============================================================
 # CONSULTAR STATUS DO PAGAMENTO
-# ATENÇÃO: AQUI PRECISA SER <payment_id>
-# NÃO USE &lt;payment_id&gt;
+#
+# IMPORTANTE:
+# A ROTA PRECISA USAR <payment_id>.
+# NÃO USE &lt;payment_id&gt;.
 # ============================================================
 
 @app.get(
@@ -966,7 +984,9 @@ def payment_status(payment_id):
         return jsonify({
             "ok": False,
 
-            "error": str(error)
+            "error": str(
+                error
+            )
         }), 503
 
     try:
@@ -1111,8 +1131,6 @@ def payment_status(payment_id):
 
 # ============================================================
 # HEALTH CHECK
-# NÃO MOSTRA SENHAS OU TOKENS
-# MOSTRA SOMENTE TRUE OU FALSE
 # ============================================================
 
 @app.get(
@@ -1126,8 +1144,11 @@ def health():
         )
     )
 
-    flask_secret_exists = bool(
+    secret_key_exists = bool(
         get_environment_value(
+            "SECRET_KEY"
+        )
+        or get_environment_value(
             "FLASK_SECRET_KEY"
         )
     )
@@ -1149,8 +1170,8 @@ def health():
             promo_password_exists
         ),
 
-        "flask_secret_exists": (
-            flask_secret_exists
+        "secret_key_exists": (
+            secret_key_exists
         ),
 
         "mp_token_exists": (
@@ -1212,7 +1233,7 @@ def internal_error(error):
 
 
 # ============================================================
-# INICIALIZAÇÃO LOCAL
+# INICIALIZAÇÃO
 # ============================================================
 
 if __name__ == "__main__":
