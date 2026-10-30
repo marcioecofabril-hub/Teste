@@ -1,120 +1,371 @@
+import hmac
+import json
 import os
+import threading
 import uuid
 from datetime import datetime, timezone
 
 import requests
-from flask import Flask, jsonify, render_template, request
+from flask import (
+    Flask,
+    jsonify,
+    render_template,
+    request,
+    session
+)
 
 
 app = Flask(__name__)
 
+app.secret_key = (
+    os.environ.get(
+        "FLASK_SECRET_KEY",
+        ""
+    ).strip()
+    or os.urandom(32)
+)
+
+
 MP_API = "https://api.mercadopago.com"
 
+PROMO_STATE_FILE = os.environ.get(
+    "PROMO_STATE_FILE",
+    "promo_state.json"
+)
+
+PROMO_STATE_LOCK = threading.Lock()
+
 
 # ============================================================
-# PLANOS DISPONIVEIS
-# O valor e definido somente no servidor.
+# PLANOS NORMAIS
 # ============================================================
 
-PLANOS = {
+PLANOS_NORMAIS = {
     "prata": {
         "nome": "Acesso Prata",
         "valor": 15.00,
-        "valor_exibicao": "15,00"
+        "valor_exibicao": "15,00",
+        "descricao": "Acesso comum",
+        "inclui_tivetv": False,
+        "promocional": False
     },
+
     "ouro": {
         "nome": "Acesso Ouro",
         "valor": 20.00,
-        "valor_exibicao": "20,00"
+        "valor_exibicao": "20,00",
+        "descricao": "Acesso Premium",
+        "inclui_tivetv": False,
+        "promocional": False
     }
 }
 
 
+# ============================================================
+# PLANOS PROMOCIONAIS
+# ============================================================
+
+PLANOS_PROMOCIONAIS = {
+    "prata_semestral": {
+        "nome": "Prata Semestral",
+        "valor": 40.00,
+        "valor_exibicao": "40,00",
+        "descricao": (
+            "Acesso por 6 meses, "
+            "sem licença do APP TiveTV"
+        ),
+        "inclui_tivetv": False,
+        "promocional": True
+    },
+
+    "ouro_semestral": {
+        "nome": "Ouro Semestral",
+        "valor": 50.00,
+        "valor_exibicao": "50,00",
+        "descricao": (
+            "Acesso por 6 meses, "
+            "com licença do APP TiveTV"
+        ),
+        "inclui_tivetv": True,
+        "promocional": True
+    }
+}
+
+
+# ============================================================
+# CONFIGURAÇÕES DO MERCADO PAGO
+# ============================================================
+
 def mp_token():
+
     token = os.environ.get(
         "MP_ACCESS_TOKEN",
         ""
     ).strip()
 
     if not token:
+
         raise RuntimeError(
-            "MP_ACCESS_TOKEN nao configurado"
+            "MP_ACCESS_TOKEN não configurado"
         )
 
     return token
 
 
 def mercado_pago_headers():
+
     return {
-        "Authorization": f"Bearer {mp_token()}",
+        "Authorization": (
+            f"Bearer {mp_token()}"
+        ),
         "Content-Type": "application/json"
     }
 
 
-@app.route("/", methods=["GET", "POST"])
+# ============================================================
+# SENHA DA PROMOÇÃO
+# ============================================================
+
+def promotion_password():
+
+    password = os.environ.get(
+        "PROMO_PASSWORD",
+        ""
+    ).strip()
+
+    if not password:
+
+        raise RuntimeError(
+            "PROMO_PASSWORD não configurada"
+        )
+
+    return password
+
+
+# ============================================================
+# ESTADO DA PROMOÇÃO
+# ============================================================
+
+def read_promotion_state():
+
+    with PROMO_STATE_LOCK:
+
+        try:
+
+            with open(
+                PROMO_STATE_FILE,
+                "r",
+                encoding="utf-8"
+            ) as file:
+
+                data = json.load(file)
+
+                return bool(
+                    data.get(
+                        "active",
+                        False
+                    )
+                )
+
+        except (
+            FileNotFoundError,
+            json.JSONDecodeError,
+            OSError
+        ):
+
+            return False
+
+
+def save_promotion_state(active):
+
+    data = {
+        "active": bool(active),
+        "updated_at": datetime.now(
+            timezone.utc
+        ).isoformat()
+    }
+
+    temporary_file = (
+        f"{PROMO_STATE_FILE}.tmp"
+    )
+
+    with PROMO_STATE_LOCK:
+
+        with open(
+            temporary_file,
+            "w",
+            encoding="utf-8"
+        ) as file:
+
+            json.dump(
+                data,
+                file,
+                ensure_ascii=False,
+                indent=2
+            )
+
+        os.replace(
+            temporary_file,
+            PROMO_STATE_FILE
+        )
+
+
+def available_plans():
+
+    if read_promotion_state():
+
+        return PLANOS_PROMOCIONAIS
+
+    return PLANOS_NORMAIS
+
+
+# ============================================================
+# PÁGINA PRINCIPAL
+# ============================================================
+
+@app.route(
+    "/",
+    methods=[
+        "GET",
+        "POST"
+    ]
+)
 def home():
 
+    promotion_active = (
+        read_promotion_state()
+    )
+
+    admin_authenticated = bool(
+        session.get(
+            "promotion_admin",
+            False
+        )
+    )
+
     if request.method == "GET":
+
         return render_template(
-            "pay_simple.html"
+            "pay_simple.html",
+            promotion_active=promotion_active,
+            admin_authenticated=(
+                admin_authenticated
+            )
         )
 
     nome = (
-        request.form.get("name") or ""
+        request.form.get("name")
+        or ""
     ).strip()[:80]
 
     email = (
-        request.form.get("email") or ""
+        request.form.get("email")
+        or ""
     ).strip().lower()[:150]
 
-    plano_escolhido = (
-        request.form.get("plano") or ""
+    selected_plan = (
+        request.form.get("plano")
+        or ""
     ).strip().lower()
 
+    template_data = {
+        "promotion_active": (
+            promotion_active
+        ),
+        "admin_authenticated": (
+            admin_authenticated
+        ),
+        "nome": nome,
+        "email": email,
+        "selected_plan": selected_plan
+    }
+
     if not nome:
+
         return render_template(
             "pay_simple.html",
-            error="Informe seu nome."
+            error="Informe seu nome.",
+            **template_data
         ), 400
 
     if (
         "@" not in email
         or "." not in email.split("@")[-1]
     ):
+
         return render_template(
             "pay_simple.html",
-            error="Informe um e-mail válido."
+            error="Informe um e-mail válido.",
+            **template_data
         ), 400
 
-    # Verifica se o plano enviado realmente existe.
-    if plano_escolhido not in PLANOS:
+    plans = available_plans()
+
+    if selected_plan not in plans:
+
         return render_template(
             "pay_simple.html",
             error=(
-                "Selecione o Acesso Prata "
-                "ou o Acesso Ouro."
-            )
+                "O plano selecionado não está "
+                "disponível neste momento."
+            ),
+            **template_data
         ), 400
 
-    plano = PLANOS[plano_escolhido]
+    plan = plans[selected_plan]
 
-    valor = plano["valor"]
-    nome_plano = plano["nome"]
-    valor_exibicao = plano["valor_exibicao"]
+    value = plan["valor"]
+
+    plan_name = plan["nome"]
+
+    displayed_value = (
+        plan["valor_exibicao"]
+    )
+
+    plan_description = (
+        plan["descricao"]
+    )
+
+    includes_tivetv = (
+        plan["inclui_tivetv"]
+    )
 
     external_reference = (
-        f"MDS-TI-{plano_escolhido.upper()}-"
+        f"MDS-TI-"
+        f"{selected_plan.upper()}-"
         f"{uuid.uuid4().hex[:12]}"
     )
 
     payload = {
-        "transaction_amount": valor,
-        "description": nome_plano,
+        "transaction_amount": value,
+
+        "description": (
+            f"{plan_name} - "
+            f"{plan_description}"
+        ),
+
         "payment_method_id": "pix",
-        "external_reference": external_reference,
+
+        "external_reference": (
+            external_reference
+        ),
+
         "payer": {
             "email": email,
             "first_name": nome
+        },
+
+        "metadata": {
+            "cliente_nome": nome,
+            "cliente_email": email,
+            "plano_id": selected_plan,
+            "plano_nome": plan_name,
+            "promocional": (
+                plan["promocional"]
+            ),
+            "inclui_tivetv": (
+                includes_tivetv
+            )
         }
     }
 
@@ -125,6 +376,7 @@ def home():
     )
 
     try:
+
         response = requests.post(
             f"{MP_API}/v1/payments",
             json=payload,
@@ -133,55 +385,74 @@ def home():
         )
 
     except requests.RequestException:
+
         return render_template(
             "pay_simple.html",
             error=(
                 "Não foi possível comunicar "
                 "com o Mercado Pago."
-            )
+            ),
+            **template_data
         ), 502
 
     try:
+
         data = response.json()
 
     except ValueError:
+
         return render_template(
             "pay_simple.html",
             error=(
                 "O Mercado Pago retornou "
                 "uma resposta inválida."
-            )
+            ),
+            **template_data
         ), 502
 
     if response.status_code not in (
         200,
         201
     ):
-        detalhe = data.get(
+
+        detail = data.get(
             "message",
             "Pagamento não criado."
         )
 
-        causas = data.get("cause")
+        causes = data.get("cause")
 
         if (
-            isinstance(causas, list)
-            and len(causas) > 0
-            and isinstance(causas[0], dict)
+            isinstance(causes, list)
+            and causes
+            and isinstance(
+                causes[0],
+                dict
+            )
         ):
-            detalhe = (
-                causas[0].get("description")
-                or causas[0].get("code")
-                or detalhe
+
+            detail = (
+                causes[0].get(
+                    "description"
+                )
+                or causes[0].get(
+                    "code"
+                )
+                or detail
             )
 
         return render_template(
             "pay_simple.html",
-            error=f"Mercado Pago: {detalhe}"
+            error=(
+                f"Mercado Pago: {detail}"
+            ),
+            **template_data
         ), 400
 
     point_of_interaction = (
-        data.get("point_of_interaction")
+        data.get(
+            "point_of_interaction"
+        )
         or {}
     )
 
@@ -193,7 +464,9 @@ def home():
     )
 
     qr_code = (
-        transaction_data.get("qr_code")
+        transaction_data.get(
+            "qr_code"
+        )
         or ""
     ).strip()
 
@@ -210,9 +483,12 @@ def home():
     ).strip()
 
     if not payment_id:
+
         return render_template(
             "message.html",
-            title="Pagamento não identificado",
+            title=(
+                "Pagamento não identificado"
+            ),
             message=(
                 "O Mercado Pago não retornou "
                 "a identificação do pagamento."
@@ -220,9 +496,12 @@ def home():
         ), 502
 
     if not qr_code:
+
         return render_template(
             "message.html",
-            title="Código Pix indisponível",
+            title=(
+                "Código Pix indisponível"
+            ),
             message=(
                 "O Mercado Pago não retornou "
                 "o código Pix."
@@ -230,9 +509,12 @@ def home():
         ), 502
 
     if not qr_base64:
+
         return render_template(
             "message.html",
-            title="QR Code indisponível",
+            title=(
+                "QR Code indisponível"
+            ),
             message=(
                 "O Mercado Pago não retornou "
                 "a imagem do QR Code."
@@ -241,35 +523,219 @@ def home():
 
     return render_template(
         "pix.html",
-        amount=valor_exibicao,
-        plano=nome_plano,
-        plano_id=plano_escolhido,
+        amount=displayed_value,
+        plano=plan_name,
+        descricao_plano=(
+            plan_description
+        ),
+        inclui_tivetv=(
+            includes_tivetv
+        ),
         qr_code=qr_code,
         qr_base64=qr_base64,
         payment_id=payment_id
     )
 
 
-@app.get("/api/status/<payment_id>")
+# ============================================================
+# LOGIN ADMINISTRATIVO DA PROMOÇÃO
+# ============================================================
+
+@app.post(
+    "/api/promotion/login"
+)
+def promotion_login():
+
+    data = (
+        request.get_json(
+            silent=True
+        )
+        or {}
+    )
+
+    received_password = str(
+        data.get("password")
+        or ""
+    )
+
+    try:
+
+        configured_password = (
+            promotion_password()
+        )
+
+    except RuntimeError as error:
+
+        return jsonify({
+            "ok": False,
+            "error": str(error)
+        }), 503
+
+    if not received_password:
+
+        return jsonify({
+            "ok": False,
+            "error": "Informe a senha."
+        }), 400
+
+    if not hmac.compare_digest(
+        received_password,
+        configured_password
+    ):
+
+        return jsonify({
+            "ok": False,
+            "error": "Senha incorreta."
+        }), 401
+
+    session[
+        "promotion_admin"
+    ] = True
+
+    session.permanent = False
+
+    return jsonify({
+        "ok": True,
+        "active": (
+            read_promotion_state()
+        ),
+        "message": (
+            "Acesso administrativo liberado."
+        )
+    }), 200
+
+
+# ============================================================
+# ATIVAR OU DESATIVAR PROMOÇÃO
+# ============================================================
+
+@app.post(
+    "/api/promotion/toggle"
+)
+def promotion_toggle():
+
+    if not session.get(
+        "promotion_admin",
+        False
+    ):
+
+        return jsonify({
+            "ok": False,
+            "error": (
+                "Acesso administrativo "
+                "não autorizado."
+            )
+        }), 401
+
+    current_state = (
+        read_promotion_state()
+    )
+
+    new_state = not current_state
+
+    try:
+
+        save_promotion_state(
+            new_state
+        )
+
+    except OSError:
+
+        return jsonify({
+            "ok": False,
+            "error": (
+                "Não foi possível salvar "
+                "o estado da promoção."
+            )
+        }), 500
+
+    return jsonify({
+        "ok": True,
+        "active": new_state,
+        "message": (
+            "Promoção ativada com sucesso."
+            if new_state
+            else
+            "Promoção desativada com sucesso."
+        )
+    }), 200
+
+
+# ============================================================
+# SAIR DO CONTROLE ADMINISTRATIVO
+# ============================================================
+
+@app.post(
+    "/api/promotion/logout"
+)
+def promotion_logout():
+
+    session.pop(
+        "promotion_admin",
+        None
+    )
+
+    return jsonify({
+        "ok": True
+    }), 200
+
+
+# ============================================================
+# CONSULTAR ESTADO DA PROMOÇÃO
+# ============================================================
+
+@app.get(
+    "/api/promotion/status"
+)
+def promotion_status():
+
+    return jsonify({
+        "ok": True,
+        "active": (
+            read_promotion_state()
+        ),
+        "admin_authenticated": bool(
+            session.get(
+                "promotion_admin",
+                False
+            )
+        )
+    }), 200
+
+
+# ============================================================
+# CONSULTAR STATUS DO PAGAMENTO
+# ============================================================
+
+@app.get(
+    "/api/status/<payment_id>"
+)
 def payment_status(payment_id):
 
     if not payment_id.isdigit():
+
         return jsonify({
             "ok": False,
-            "error": "ID do pagamento inválido."
+            "error": (
+                "ID do pagamento inválido."
+            )
         }), 400
 
     try:
+
         response = requests.get(
             (
                 f"{MP_API}/v1/payments/"
                 f"{payment_id}"
             ),
-            headers=mercado_pago_headers(),
+            headers=(
+                mercado_pago_headers()
+            ),
             timeout=15
         )
 
     except requests.RequestException:
+
         return jsonify({
             "ok": False,
             "error": (
@@ -279,9 +745,11 @@ def payment_status(payment_id):
         }), 502
 
     try:
+
         data = response.json()
 
     except ValueError:
+
         return jsonify({
             "ok": False,
             "error": (
@@ -291,6 +759,7 @@ def payment_status(payment_id):
         }), 502
 
     if response.status_code != 200:
+
         return jsonify({
             "ok": False,
             "error": data.get(
@@ -299,59 +768,111 @@ def payment_status(payment_id):
             )
         }), response.status_code
 
-    transaction_details = (
-        data.get("transaction_details")
-        or {}
-    )
-
     external_reference = (
-        data.get("external_reference")
+        data.get(
+            "external_reference"
+        )
         or ""
     )
 
-    plano = ""
+    if not external_reference.startswith(
+        "MDS-TI-"
+    ):
 
-    if "-PRATA-" in external_reference:
-        plano = "prata"
+        return jsonify({
+            "ok": False,
+            "error": (
+                "Pagamento não pertence "
+                "a esta aplicação."
+            )
+        }), 403
 
-    elif "-OURO-" in external_reference:
-        plano = "ouro"
+    transaction_details = (
+        data.get(
+            "transaction_details"
+        )
+        or {}
+    )
+
+    metadata = (
+        data.get("metadata")
+        or {}
+    )
 
     return jsonify({
         "ok": True,
+
         "payment_id": str(
-            data.get("id") or ""
+            data.get("id")
+            or ""
         ),
-        "status": data.get("status"),
+
+        "status": data.get(
+            "status"
+        ),
+
         "status_detail": data.get(
             "status_detail"
         ),
+
         "transaction_amount": data.get(
             "transaction_amount"
         ),
+
         "net_received_amount": (
             transaction_details.get(
                 "net_received_amount"
             )
         ),
+
         "date_approved": data.get(
             "date_approved"
         ),
-        "plano": plano,
-        "external_reference": external_reference
+
+        "plano_id": metadata.get(
+            "plano_id",
+            ""
+        ),
+
+        "plano_nome": metadata.get(
+            "plano_nome",
+            ""
+        ),
+
+        "inclui_tivetv": bool(
+            metadata.get(
+                "inclui_tivetv",
+                False
+            )
+        ),
+
+        "external_reference": (
+            external_reference
+        )
     }), 200
 
+
+# ============================================================
+# HEALTH CHECK
+# ============================================================
 
 @app.get("/health")
 def health():
 
     return jsonify({
         "ok": True,
+        "promotion_active": (
+            read_promotion_state()
+        ),
         "time": datetime.now(
             timezone.utc
         ).isoformat()
     })
 
+
+# ============================================================
+# ERROS
+# ============================================================
 
 @app.errorhandler(404)
 def page_not_found(error):
@@ -377,6 +898,10 @@ def internal_error(error):
         )
     ), 500
 
+
+# ============================================================
+# INICIALIZAÇÃO
+# ============================================================
 
 if __name__ == "__main__":
 
