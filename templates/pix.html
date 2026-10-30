@@ -64,8 +64,7 @@
 
             <p
                 style="
-                    margin:
-                        7px 20px 0;
+                    margin: 7px 22px 0;
 
                     color: #98a2b3;
 
@@ -235,7 +234,6 @@
                     <p
                         style="
                             margin: 10px 0 0;
-
                             padding: 10px;
 
                             border: 1px solid #abefc6;
@@ -327,7 +325,6 @@
                 >
 
                 <label
-                    id="receipt-label"
                     for="receipt-input"
                     style="
                         width: 100%;
@@ -535,7 +532,6 @@
             "share-button"
         );
 
-
     let selectedReceipt =
         null;
 
@@ -545,23 +541,18 @@
     let paymentFinished =
         false;
 
-
     pixField.value =
         PIX_CODE;
-
 
     function showCopySuccess() {
 
         copyButtonText.textContent =
             "✓ Código Pix copiado!";
 
-        const ending =
-            PIX_CODE.slice(-12);
-
         copyFeedback.textContent =
             (
                 "Código copiado. Final: "
-                + ending
+                + PIX_CODE.slice(-12)
             );
 
         copyFeedback.style.color =
@@ -578,29 +569,12 @@
         );
     }
 
-
-    function showCopyError() {
-
-        copyFeedback.textContent =
-            (
-                "Cópia automática bloqueada. " +
-                "O código foi selecionado."
-            );
-
-        copyFeedback.style.color =
-            "#b42318";
-    }
-
-
     async function copyPix() {
 
         if (!PIX_CODE) {
 
             copyFeedback.textContent =
                 "Código Pix indisponível.";
-
-            copyFeedback.style.color =
-                "#b42318";
 
             return;
         }
@@ -626,7 +600,6 @@
         } catch (error) {
 
             console.log(
-                "Clipboard indisponível:",
                 error
             );
         }
@@ -639,55 +612,24 @@
         temporaryField.value =
             PIX_CODE;
 
-        temporaryField.setAttribute(
-            "readonly",
-            ""
-        );
-
         temporaryField.style.position =
             "fixed";
 
         temporaryField.style.left =
             "-9999px";
 
-        temporaryField.style.top =
-            "0";
-
-        temporaryField.style.opacity =
-            "0";
-
         document.body.appendChild(
             temporaryField
         );
 
-        temporaryField.focus();
-
         temporaryField.select();
 
-        temporaryField.setSelectionRange(
-            0,
-            PIX_CODE.length
-        );
+        const copied =
+            document.execCommand(
+                "copy"
+            );
 
-        let copied =
-            false;
-
-        try {
-
-            copied =
-                document.execCommand(
-                    "copy"
-                );
-
-        } catch (error) {
-
-            copied =
-                false;
-        }
-
-        document.body.removeChild(
-            temporaryField
-        );
+        temporaryField.remove();
 
         if (copied) {
 
@@ -696,18 +638,18 @@
         } else {
 
             pixField.focus();
-
             pixField.select();
 
-            pixField.setSelectionRange(
-                0,
-                PIX_CODE.length
-            );
+            copyFeedback.textContent =
+                (
+                    "O código foi selecionado. "
+                    + "Copie manualmente."
+                );
 
-            showCopyError();
+            copyFeedback.style.color =
+                "#b42318";
         }
     }
-
 
     function formatMoney(value) {
 
@@ -729,7 +671,6 @@
                 }
             );
     }
-
 
     async function checkPayment() {
 
@@ -767,7 +708,6 @@
                     ),
                     {
                         method: "GET",
-
                         cache: "no-store",
 
                         headers: {
@@ -777,17 +717,14 @@
                     }
                 );
 
-            let data = {};
-
-            try {
-
-                data =
-                    await response.json();
-
-            } catch (error) {
-
-                data = {};
-            }
+            const data =
+                await response
+                    .json()
+                    .catch(
+                        function () {
+                            return {};
+                        }
+                    );
 
             if (
                 !response.ok
@@ -833,42 +770,23 @@
                         "Valor pago: "
                         + amount
                     )
-                    : (
-                        "Pagamento recebido."
-                    );
+                    : "Pagamento recebido.";
 
                 return;
             }
 
             if (
                 data.status === "rejected"
+                || data.status === "cancelled"
             ) {
 
                 paymentStatus.textContent =
-                    "Pagamento recusado.";
-
-                paymentStatus.className =
-                    "error";
-
-                rejectedBox.style.display =
-                    "block";
-
-                rejectedMessage.textContent =
                     (
-                        data.status_detail
-                        || (
-                            "O pagamento "
-                            + "foi recusado."
-                        )
+                        data.status === "rejected"
+                        ? "Pagamento recusado."
+                        : "Pagamento cancelado."
                     );
 
-            } else if (
-                data.status === "cancelled"
-            ) {
-
-                paymentStatus.textContent =
-                    "Pagamento cancelado.";
-
                 paymentStatus.className =
                     "error";
 
@@ -879,8 +797,8 @@
                     (
                         data.status_detail
                         || (
-                            "O pagamento "
-                            + "foi cancelado."
+                            "O pagamento não "
+                            + "foi confirmado."
                         )
                     );
 
@@ -907,11 +825,6 @@
             paymentStatus.className =
                 "error";
 
-            console.log(
-                "Erro na consulta:",
-                error
-            );
-
         } finally {
 
             checkingPayment =
@@ -924,7 +837,6 @@
             }
         }
     }
-
 
     function handleReceiptSelection() {
 
@@ -960,7 +872,6 @@
         shareButton.style.display =
             "flex";
     }
-
 
     async function shareReceipt() {
 
@@ -1006,12 +917,9 @@
 
                 alert(
                     (
-                        "O arquivo foi selecionado, "
-                        + "mas este navegador não "
-                        + "permite compartilhar "
-                        + "anexos diretamente. "
-                        + "Abra o WhatsApp e envie "
-                        + "o comprovante normalmente."
+                        "Este navegador não permite "
+                        + "compartilhar o anexo "
+                        + "diretamente."
                     )
                 );
             }
@@ -1033,30 +941,25 @@
         }
     }
 
-
     copyButton.addEventListener(
         "click",
         copyPix
     );
-
 
     checkButton.addEventListener(
         "click",
         checkPayment
     );
 
-
     receiptInput.addEventListener(
         "change",
         handleReceiptSelection
     );
 
-
     shareButton.addEventListener(
         "click",
         shareReceipt
     );
-
 
     document.addEventListener(
         "visibilitychange",
@@ -1073,7 +976,6 @@
         }
     );
 
-
     window.addEventListener(
         "focus",
         function () {
@@ -1085,12 +987,10 @@
         }
     );
 
-
     setTimeout(
         checkPayment,
         1200
     );
-
 
     setInterval(
         function () {
