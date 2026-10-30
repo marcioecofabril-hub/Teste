@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -9,11 +10,14 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <meta name="theme-color" content="#071426">
+    <meta
+        name="theme-color"
+        content="#071426"
+    >
 
-    <title>MDS_TI | Pagamento Pix</title>
-
-    <!-- PREVIA DO LINK PARA WHATSAPP -->
+    <title>
+        MDS_TI | Pagamento Pix
+    </title>
 
     <meta
         property="og:title"
@@ -70,8 +74,6 @@
         content="MDS_TI"
     >
 
-    <!-- PREVIA PARA OUTROS SERVICOS -->
-
     <meta
         name="twitter:card"
         content="summary_large_image"
@@ -92,8 +94,6 @@
         content="https://pagamento-pix-ti.onrender.com/static/PIX.PNG"
     >
 
-    <!-- CSS PRINCIPAL -->
-
     <link
         rel="stylesheet"
         href="{{ url_for('static', filename='style.css') }}"
@@ -109,9 +109,52 @@
             color: #d9e3f0;
         }
 
+        .promotion-banner {
+            margin: 0 0 18px;
+            padding: 15px 14px;
+
+            border: 1px solid rgba(
+                245,
+                197,
+                66,
+                0.48
+            );
+
+            border-radius: 14px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(245, 197, 66, 0.16),
+                    rgba(245, 197, 66, 0.05)
+                );
+
+            text-align: center;
+        }
+
+        .promotion-banner strong {
+            display: block;
+            margin-bottom: 5px;
+
+            color: #f5c542;
+            font-size: 15px;
+            font-weight: 900;
+        }
+
+        .promotion-banner span {
+            display: block;
+
+            color: #d7c68d;
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
         .plans {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+
+            grid-template-columns:
+                1fr 1fr;
+
             gap: 12px;
             margin-bottom: 22px;
         }
@@ -128,10 +171,16 @@
 
         .plan-card {
             display: block;
+
             height: 100%;
+
+            box-sizing: border-box;
+
             padding: 18px 12px;
+
             border: 2px solid #26384d;
             border-radius: 14px;
+
             text-align: center;
             cursor: pointer;
 
@@ -149,31 +198,40 @@
 
         .plan-icon {
             display: block;
+
             margin-bottom: 6px;
+
             font-size: 28px;
         }
 
         .plan-name {
             display: block;
+
             margin-bottom: 6px;
+
             font-size: 15px;
             font-weight: 800;
         }
 
         .plan-price {
             display: block;
+
             font-size: 25px;
             font-weight: 800;
+
             white-space: nowrap;
         }
 
         .plan-description {
             display: block;
-            margin-top: 6px;
-            font-size: 12px;
-        }
 
-        /* PLANO PRATA */
+            min-height: 32px;
+
+            margin-top: 6px;
+
+            font-size: 12px;
+            line-height: 1.35;
+        }
 
         .silver {
             color: #e2e8f0;
@@ -191,8 +249,6 @@
             color: #b6c2d1;
         }
 
-        /* PLANO OURO */
-
         .gold {
             color: #f5c542;
         }
@@ -209,28 +265,40 @@
             color: #d7b64a;
         }
 
-        .plan-option input:focus-visible + .plan-card {
-            outline: 3px solid rgba(24, 144, 255, 0.35);
+        .plan-option input:focus-visible
+        + .plan-card {
+
+            outline: 3px solid
+                rgba(24, 144, 255, 0.35);
+
             outline-offset: 3px;
         }
 
-        .plan-option input:checked + .plan-card.silver {
+        .plan-option input:checked
+        + .plan-card.silver {
+
             border-color: #cbd5e1;
 
             box-shadow:
-                0 0 0 2px rgba(203, 213, 225, 0.15),
-                0 8px 24px rgba(0, 0, 0, 0.25);
+                0 0 0 2px
+                rgba(203, 213, 225, 0.15),
+
+                0 8px 24px
+                rgba(0, 0, 0, 0.25);
         }
 
-        .plan-option input:checked + .plan-card.gold {
+        .plan-option input:checked
+        + .plan-card.gold {
+
             border-color: #f5c542;
 
             box-shadow:
-                0 0 0 2px rgba(245, 197, 66, 0.15),
-                0 8px 24px rgba(0, 0, 0, 0.25);
-        }
+                0 0 0 2px
+                rgba(245, 197, 66, 0.15),
 
-        /* WHATSAPP */
+                0 8px 24px
+                rgba(0, 0, 0, 0.25);
+        }
 
         .other-services {
             margin-top: 22px;
@@ -238,7 +306,9 @@
 
         .whatsapp-box {
             width: 100%;
+
             padding: 18px 16px;
+
             box-sizing: border-box;
 
             border: 1px solid #dfe6ed;
@@ -251,35 +321,45 @@
 
         .whatsapp-title {
             margin: 0 0 5px;
+
             color: #334155;
+
             font-size: 14px;
             font-weight: 800;
         }
 
         .whatsapp-subtitle {
             margin: 0 0 13px;
+
             color: #64748b;
+
             font-size: 12px;
         }
 
         .whatsapp-number {
             display: flex;
+
             align-items: center;
             justify-content: center;
+
             gap: 10px;
 
             margin-bottom: 12px;
 
             color: #0f172a;
+
             font-size: 20px;
             font-weight: 800;
+
             letter-spacing: 0.4px;
         }
 
         .whatsapp-icon {
             display: inline-flex;
+
             width: 34px;
             height: 34px;
+
             flex: 0 0 34px;
 
             align-items: center;
@@ -298,8 +378,10 @@
             min-height: 48px;
 
             display: flex;
+
             align-items: center;
             justify-content: center;
+
             gap: 8px;
 
             padding: 12px 15px;
@@ -325,6 +407,7 @@
         .copy-whatsapp-button:hover {
             border-color: #25d366;
             background: #f0fff6;
+
             transform: translateY(-1px);
         }
 
@@ -338,10 +421,199 @@
             background: #eafff2;
         }
 
+        .promotion-control {
+            margin-top: 18px;
+            padding-top: 17px;
+
+            border-top: 1px solid
+                rgba(148, 163, 184, 0.20);
+
+            text-align: center;
+        }
+
+        .promotion-admin-button {
+            padding: 5px 8px;
+
+            border: 0;
+
+            color: #94a3b8;
+            background: transparent;
+
+            font-family: inherit;
+            font-size: 11px;
+            font-weight: 700;
+
+            cursor: pointer;
+
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        .promotion-admin-button:hover {
+            color: #d9e3f0;
+        }
+
+        .promotion-panel {
+            display: none;
+
+            margin-top: 12px;
+            padding: 15px;
+
+            border: 1px solid #26384d;
+            border-radius: 13px;
+
+            background: #08182a;
+
+            text-align: left;
+        }
+
+        .promotion-panel.visible {
+            display: block;
+        }
+
+        .promotion-panel-title {
+            margin: 0 0 6px;
+
+            color: #f8fafc;
+
+            text-align: center;
+
+            font-size: 14px;
+            font-weight: 900;
+        }
+
+        .promotion-panel-subtitle {
+            margin: 0 0 12px;
+
+            color: #94a3b8;
+
+            text-align: center;
+
+            font-size: 11px;
+            line-height: 1.45;
+        }
+
+        .promotion-password {
+            width: 100%;
+            min-height: 46px;
+
+            box-sizing: border-box;
+
+            padding: 11px 12px;
+
+            border: 1px solid #32475f;
+            border-radius: 10px;
+
+            color: #f8fafc;
+            background: #0c1b2e;
+
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .promotion-password:focus {
+            border-color: #1890ff;
+            outline: none;
+
+            box-shadow:
+                0 0 0 3px
+                rgba(24, 144, 255, 0.14);
+        }
+
+        .promotion-actions {
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap: 9px;
+
+            margin-top: 10px;
+        }
+
+        .promotion-actions button {
+            width: 100%;
+            min-height: 44px;
+
+            margin: 0;
+            padding: 10px 8px;
+
+            border: 0;
+            border-radius: 10px;
+
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 900;
+
+            cursor: pointer;
+
+            box-shadow: none;
+        }
+
+        .promotion-primary {
+            color: #071426;
+            background: #f5c542;
+        }
+
+        .promotion-primary:hover {
+            background: #ffd85a;
+        }
+
+        .promotion-secondary {
+            color: #d9e3f0;
+            background: #26384d;
+        }
+
+        .promotion-danger {
+            color: #ffffff;
+            background: #b42318;
+        }
+
+        .promotion-status {
+            margin: 0 0 12px;
+            padding: 10px;
+
+            border-radius: 10px;
+
+            text-align: center;
+
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .promotion-status.active {
+            color: #067647;
+            background: #ecfdf3;
+
+            border: 1px solid #abefc6;
+        }
+
+        .promotion-status.inactive {
+            color: #475467;
+            background: #f8fafc;
+
+            border: 1px solid #d0d5dd;
+        }
+
+        .promotion-feedback {
+            min-height: 18px;
+
+            margin-top: 10px;
+
+            color: #93c5fd;
+
+            text-align: center;
+
+            font-size: 11px;
+            font-weight: 700;
+        }
+
         @media (max-width: 560px) {
 
             .plans {
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns:
+                    1fr 1fr;
+
                 gap: 10px;
             }
 
@@ -422,7 +694,17 @@
             </div>
 
             <p class="eyebrow">
-                PAGAMENTO VIA PIX
+
+                {% if promotion_active %}
+
+                    PROMOÇÃO SEMESTRAL
+
+                {% else %}
+
+                    PAGAMENTO VIA PIX
+
+                {% endif %}
+
             </p>
 
             <h1 id="hero-price">
@@ -442,96 +724,212 @@
 
         {% if error %}
 
-        <div class="error">
-            {{ error }}
-        </div>
+            <div class="error">
+                {{ error }}
+            </div>
 
         {% endif %}
 
-        <form method="POST" id="payment-form">
+        <form
+            method="POST"
+            id="payment-form"
+        >
+
+            {% if promotion_active %}
+
+                <div class="promotion-banner">
+
+                    <strong>
+                        🔥 PROMOÇÃO SEMESTRAL ATIVA
+                    </strong>
+
+                    <span>
+                        Escolha o Prata Semestral
+                        ou o Ouro Semestral com
+                        licença do APP TiveTV.
+                    </span>
+
+                </div>
+
+            {% endif %}
 
             <p class="plans-title">
-                ESCOLHA SEU PLANO
+
+                {% if promotion_active %}
+
+                    ESCOLHA SUA PROMOÇÃO
+
+                {% else %}
+
+                    ESCOLHA SEU PLANO
+
+                {% endif %}
+
             </p>
 
             <div class="plans">
 
-                <!-- ACESSO PRATA -->
+                {% if promotion_active %}
 
-                <div class="plan-option">
+                    <div class="plan-option">
 
-                    <input
-                        type="radio"
-                        id="plano-prata"
-                        name="plano"
-                        value="prata"
-                        required
-                    >
+                        <input
+                            type="radio"
+                            id="plano-prata"
+                            name="plano"
+                            value="prata_semestral"
+                            required
+                            {% if selected_plan == "prata_semestral" %}
+                                checked
+                            {% endif %}
+                        >
 
-                    <label
-                        for="plano-prata"
-                        class="plan-card silver"
-                    >
+                        <label
+                            for="plano-prata"
+                            class="plan-card silver"
+                        >
 
-                        <span class="plan-icon">
-                            🥈
-                        </span>
+                            <span class="plan-icon">
+                                🥈
+                            </span>
 
-                        <span class="plan-name">
-                            ACESSO PRATA
-                        </span>
+                            <span class="plan-name">
+                                PRATA SEMESTRAL
+                            </span>
 
-                        <span class="plan-price">
-                            R$ 15,00
-                        </span>
+                            <span class="plan-price">
+                                R$ 40,00
+                            </span>
 
-                        <span class="plan-description">
-                            Acesso comum
-                        </span>
+                            <span class="plan-description">
+                                6 meses, sem licença
+                                do APP TiveTV
+                            </span>
 
-                    </label>
+                        </label>
 
-                </div>
+                    </div>
 
-                <!-- ACESSO OURO -->
+                    <div class="plan-option">
 
-                <div class="plan-option">
+                        <input
+                            type="radio"
+                            id="plano-ouro"
+                            name="plano"
+                            value="ouro_semestral"
+                            required
+                            {% if selected_plan == "ouro_semestral" %}
+                                checked
+                            {% endif %}
+                        >
 
-                    <input
-                        type="radio"
-                        id="plano-ouro"
-                        name="plano"
-                        value="ouro"
-                        required
-                    >
+                        <label
+                            for="plano-ouro"
+                            class="plan-card gold"
+                        >
 
-                    <label
-                        for="plano-ouro"
-                        class="plan-card gold"
-                    >
+                            <span class="plan-icon">
+                                🥇
+                            </span>
 
-                        <span class="plan-icon">
-                            🥇
-                        </span>
+                            <span class="plan-name">
+                                OURO SEMESTRAL
+                            </span>
 
-                        <span class="plan-name">
-                            ACESSO OURO
-                        </span>
+                            <span class="plan-price">
+                                R$ 50,00
+                            </span>
 
-                        <span class="plan-price">
-                            R$ 20,00
-                        </span>
+                            <span class="plan-description">
+                                6 meses + licença
+                                do APP TiveTV
+                            </span>
 
-                        <span classsso Premium
-                        </span>
+                        </label>
 
-                    </label>
+                    </div>
 
-                </div>
+                {% else %}
+
+                    <div class="plan-option">
+
+                        <input
+                            type="radio"
+                            id="plano-prata"
+                            name="plano"
+                            value="prata"
+                            required
+                            {% if selected_plan == "prata" %}
+                                checked
+                            {% endif %}
+                        >
+
+                        <label
+                            for="plano-prata"
+                            class="plan-card silver"
+                        >
+
+                            <span class="plan-icon">
+                                🥈
+                            </span>
+
+                            <span class="plan-name">
+                                ACESSO PRATA
+                            </span>
+
+                            <span class="plan-price">
+                                R$ 15,00
+                            </span>
+
+                            <span class="plan-description">
+                                Acesso comum
+                            </span>
+
+                        </label>
+
+                    </div>
+
+                    <div class="plan-option">
+
+                        <input
+                            type="radio"
+                            id="plano-ouro"
+                            name="plano"
+                            value="ouro"
+                            required
+                            {% if selected_plan == "ouro" %}
+                                checked
+                            {% endif %}
+                        >
+
+                        <label
+                            for="plano-ouro"
+                            class="plan-card gold"
+                        >
+
+                            <span class="plan-icon">
+                                🥇
+                            </span>
+
+                            <span class="plan-name">
+                                ACESSO OURO
+                            </span>
+
+                            <span class="plan-price">
+                                R$ 20,00
+                            </span>
+
+                            <span class="plan-description">
+                                Acesso Premium
+                            </span>
+
+                        </label>
+
+                    </div>
+
+                {% endif %}
 
             </div>
-
-            <!-- NOME -->
 
             <div class="field">
 
@@ -543,6 +941,7 @@
                     id="name"
                     type="text"
                     name="name"
+                    value="{{ nome | default('') }}"
                     placeholder="Digite seu nome"
                     autocomplete="name"
                     maxlength="80"
@@ -550,8 +949,6 @@
                 >
 
             </div>
-
-            <!-- E-MAIL -->
 
             <div class="field">
 
@@ -563,6 +960,7 @@
                     id="email"
                     type="email"
                     name="email"
+                    value="{{ email | default('') }}"
                     placeholder="seuemail@exemplo.com"
                     autocomplete="email"
                     maxlength="150"
@@ -570,8 +968,6 @@
                 >
 
             </div>
-
-            <!-- RESUMO -->
 
             <div class="summary">
 
@@ -604,8 +1000,6 @@
 
             </div>
 
-            <!-- BOTAO PIX -->
-
             <button
                 type="submit"
                 id="submit-button"
@@ -623,8 +1017,6 @@
 
         </form>
 
-        <!-- INFORMACOES PIX -->
-
         <div class="info">
 
             <div class="info-icon">
@@ -633,16 +1025,22 @@
 
             <p>
                 Após continuar, será gerado um
-                <strong>QR Code Pix</strong>
+
+                <strong>
+                    QR Code Pix
+                </strong>
+
                 e o
-                <strong>Pix Copia e Cola</strong>
+
+                <strong>
+                    Pix Copia e Cola
+                </strong>
+
                 para concluir o pagamento pelo
                 aplicativo do banco.
             </p>
 
         </div>
-
-        <!-- WHATSAPP -->
 
         <div class="other-services">
 
@@ -676,18 +1074,151 @@
                     class="copy-whatsapp-button"
                     id="copy-whatsapp"
                 >
-                    <span>📋</span>
+
+                    <span>
+                        📋
+                    </span>
 
                     <span id="copy-whatsapp-text">
                         Copiar número
                     </span>
+
                 </button>
 
             </div>
 
         </div>
 
-        <!-- RODAPE -->
+        <div class="promotion-control">
+
+            <button
+                type="button"
+                class="promotion-admin-button"
+                id="promotion-admin-button"
+            >
+                🔐 Administrar promoção
+            </button>
+
+            <div
+                class="promotion-panel"
+                id="promotion-panel"
+            >
+
+                {% if admin_authenticated %}
+
+                    <p class="promotion-panel-title">
+                        Controle da promoção
+                    </p>
+
+                    <p class="promotion-panel-subtitle">
+                        Ative ou desative os planos
+                        semestrais da página.
+                    </p>
+
+                    {% if promotion_active %}
+
+                        <div
+                            class="
+                                promotion-status
+                                active
+                            "
+                        >
+                            Promoção atualmente ativa
+                        </div>
+
+                    {% else %}
+
+                        <div
+                            class="
+                                promotion-status
+                                inactive
+                            "
+                        >
+                            Promoção atualmente desativada
+                        </div>
+
+                    {% endif %}
+
+                    <div class="promotion-actions">
+
+                        <button
+                            type="button"
+                            class="promotion-primary"
+                            id="promotion-toggle-button"
+                        >
+
+                            {% if promotion_active %}
+
+                                Desativar promoção
+
+                            {% else %}
+
+                                Ativar promoção
+
+                            {% endif %}
+
+                        </button>
+
+                        <button
+                            type="button"
+                            class="promotion-danger"
+                            id="promotion-logout-button"
+                        >
+                            Sair
+                        </button>
+
+                    </div>
+
+                {% else %}
+
+                    <p class="promotion-panel-title">
+                        Acesso administrativo
+                    </p>
+
+                    <p class="promotion-panel-subtitle">
+                        Digite a senha para administrar
+                        a promoção.
+                    </p>
+
+                    <input
+                        type="password"
+                        class="promotion-password"
+                        id="promotion-password"
+                        placeholder="Digite a senha"
+                        autocomplete="current-password"
+                    >
+
+                    <div class="promotion-actions">
+
+                        <button
+                            type="button"
+                            class="promotion-primary"
+                            id="promotion-login-button"
+                        >
+                            Entrar
+                        </button>
+
+                        <button
+                            type="button"
+                            class="promotion-secondary"
+                            id="promotion-close-button"
+                        >
+                            Fechar
+                        </button>
+
+                    </div>
+
+                {% endif %}
+
+                <div
+                    class="promotion-feedback"
+                    id="promotion-feedback"
+                    aria-live="polite"
+                ></div>
+
+            </div>
+
+        </div>
 
         <footer>
 
@@ -711,178 +1242,545 @@
 
 <script>
 
-    const planoPrata =
-        document.getElementById("plano-prata");
+(function () {
 
-    const planoOuro =
-        document.getElementById("plano-ouro");
+    "use strict";
+
+    const promotionActive =
+        {{ promotion_active | tojson }};
+
+    const silverPlan =
+        document.getElementById(
+            "plano-prata"
+        );
+
+    const goldPlan =
+        document.getElementById(
+            "plano-ouro"
+        );
 
     const heroPrice =
-        document.getElementById("hero-price");
+        document.getElementById(
+            "hero-price"
+        );
 
     const heroDescription =
-        document.getElementById("hero-description");
+        document.getElementById(
+            "hero-description"
+        );
 
     const summaryPlan =
-        document.getElementById("summary-plan");
+        document.getElementById(
+            "summary-plan"
+        );
 
     const summaryPrice =
-        document.getElementById("summary-price");
+        document.getElementById(
+            "summary-price"
+        );
 
     const paymentForm =
-        document.getElementById("payment-form");
+        document.getElementById(
+            "payment-form"
+        );
 
     const submitButton =
-        document.getElementById("submit-button");
+        document.getElementById(
+            "submit-button"
+        );
 
     const submitButtonText =
-        document.getElementById("submit-button-text");
+        document.getElementById(
+            "submit-button-text"
+        );
 
     const copyWhatsappButton =
-        document.getElementById("copy-whatsapp");
+        document.getElementById(
+            "copy-whatsapp"
+        );
 
     const copyWhatsappText =
-        document.getElementById("copy-whatsapp-text");
+        document.getElementById(
+            "copy-whatsapp-text"
+        );
+
+    const promotionAdminButton =
+        document.getElementById(
+            "promotion-admin-button"
+        );
+
+    const promotionPanel =
+        document.getElementById(
+            "promotion-panel"
+        );
+
+    const promotionFeedback =
+        document.getElementById(
+            "promotion-feedback"
+        );
+
+    const promotionPassword =
+        document.getElementById(
+            "promotion-password"
+        );
+
+    const promotionLoginButton =
+        document.getElementById(
+            "promotion-login-button"
+        );
+
+    const promotionCloseButton =
+        document.getElementById(
+            "promotion-close-button"
+        );
+
+    const promotionToggleButton =
+        document.getElementById(
+            "promotion-toggle-button"
+        );
+
+    const promotionLogoutButton =
+        document.getElementById(
+            "promotion-logout-button"
+        );
 
 
-    function selecionarPlano(
-        nome,
-        preco,
-        descricao
+    function selectPlan(
+        name,
+        price,
+        description
     ) {
 
-        heroPrice.textContent = preco;
+        heroPrice.textContent =
+            price;
 
-        heroDescription.textContent = descricao;
+        heroDescription.textContent =
+            description;
 
-        summaryPlan.textContent = nome;
+        summaryPlan.textContent =
+            name;
 
-        summaryPrice.textContent = preco;
+        summaryPrice.textContent =
+            price;
     }
 
 
-    planoPrata.addEventListener(
+    silverPlan.addEventListener(
         "change",
         function () {
 
-            if (this.checked) {
+            if (!this.checked) {
+                return;
+            }
 
-                selecionarPlano(
+            if (promotionActive) {
+
+                selectPlan(
+                    "Prata Semestral",
+                    "R$ 40,00",
+                    (
+                        "Acesso por 6 meses, " +
+                        "sem licença do APP TiveTV"
+                    )
+                );
+
+            } else {
+
+                selectPlan(
                     "Acesso Prata",
                     "R$ 15,00",
-                    "Pagamento referente ao acesso Prata"
+                    (
+                        "Pagamento referente " +
+                        "ao acesso Prata"
+                    )
                 );
-
             }
         }
     );
 
 
-    planoOuro.addEventListener(
+    goldPlan.addEventListener(
         "change",
         function () {
 
-            if (this.checked) {
+            if (!this.checked) {
+                return;
+            }
 
-                selecionarPlano(
-                    "Acesso Ouro",
-                    "R$ 20,00",
-                    "Pagamento referente ao acesso Ouro"
+            if (promotionActive) {
+
+                selectPlan(
+                    "Ouro Semestral",
+                    "R$ 50,00",
+                    (
+                        "Acesso por 6 meses, " +
+                        "com licença do APP TiveTV"
+                    )
                 );
 
+            } else {
+
+                selectPlan(
+                    "Acesso Ouro",
+                    "R$ 20,00",
+                    (
+                        "Pagamento referente " +
+                        "ao acesso Ouro"
+                    )
+                );
             }
         }
     );
+
+
+    if (silverPlan.checked) {
+
+        silverPlan.dispatchEvent(
+            new Event("change")
+        );
+    }
+
+
+    if (goldPlan.checked) {
+
+        goldPlan.dispatchEvent(
+            new Event("change")
+        );
+    }
 
 
     paymentForm.addEventListener(
         "submit",
         function () {
 
-            submitButton.disabled = true;
+            if (!paymentForm.checkValidity()) {
+                return;
+            }
+
+            submitButton.disabled =
+                true;
 
             submitButtonText.textContent =
                 "Gerando Pix...";
-
         }
     );
 
-
-    /* COPIAR NUMERO DO WHATSAPP */
 
     copyWhatsappButton.addEventListener(
         "click",
         async function () {
 
-            const numero = "11977937889";
+            const number =
+                "11977937889";
 
             try {
 
-                await navigator.clipboard.writeText(numero);
-
-                copyWhatsappText.textContent =
-                    "Número copiado!";
-
-                copyWhatsappButton.classList.add(
-                    "copied"
-                );
-
-                setTimeout(
-                    function () {
-
-                        copyWhatsappText.textContent =
-                            "Copiar número";
-
-                        copyWhatsappButton.classList.remove(
-                            "copied"
-                        );
-
-                    },
-                    2000
-                );
+                await navigator
+                    .clipboard
+                    .writeText(
+                        number
+                    );
 
             } catch (error) {
 
-                const campoTemporario =
-                    document.createElement("textarea");
+                const temporaryField =
+                    document.createElement(
+                        "textarea"
+                    );
 
-                campoTemporario.value = numero;
+                temporaryField.value =
+                    number;
 
                 document.body.appendChild(
-                    campoTemporario
+                    temporaryField
                 );
 
-                campoTemporario.select();
+                temporaryField.select();
 
-                document.execCommand("copy");
+                document.execCommand(
+                    "copy"
+                );
 
                 document.body.removeChild(
-                    campoTemporario
+                    temporaryField
+                );
+            }
+
+            copyWhatsappText.textContent =
+                "Número copiado!";
+
+            copyWhatsappButton.classList.add(
+                "copied"
+            );
+
+            setTimeout(
+                function () {
+
+                    copyWhatsappText.textContent =
+                        "Copiar número";
+
+                    copyWhatsappButton
+                        .classList
+                        .remove(
+                            "copied"
+                        );
+
+                },
+                2000
+            );
+        }
+    );
+
+
+    promotionAdminButton.addEventListener(
+        "click",
+        function () {
+
+            promotionPanel
+                .classList
+                .toggle(
+                    "visible"
                 );
 
-                copyWhatsappText.textContent =
-                    "Número copiado!";
-
-                copyWhatsappButton.classList.add(
-                    "copied"
-                );
+            if (
+                promotionPassword
+                && promotionPanel
+                    .classList
+                    .contains(
+                        "visible"
+                    )
+            ) {
 
                 setTimeout(
                     function () {
 
-                        copyWhatsappText.textContent =
-                            "Copiar número";
-
-                        copyWhatsappButton.classList.remove(
-                            "copied"
-                        );
+                        promotionPassword.focus();
 
                     },
-                    2000
+                    100
                 );
             }
         }
     );
+
+
+    if (promotionCloseButton) {
+
+        promotionCloseButton.addEventListener(
+            "click",
+            function () {
+
+                promotionPanel
+                    .classList
+                    .remove(
+                        "visible"
+                    );
+            }
+        );
+    }
+
+
+    async function postJson(
+        url,
+        data
+    ) {
+
+        const response =
+            await fetch(
+                url,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+
+                        "Accept":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify(
+                        data || {}
+                    )
+                }
+            );
+
+        let result = {};
+
+        try {
+
+            result =
+                await response.json();
+
+        } catch (error) {
+
+            result = {};
+        }
+
+        if (
+            !response.ok
+            || !result.ok
+        ) {
+
+            throw new Error(
+                result.error
+                || (
+                    "Não foi possível " +
+                    "concluir a operação."
+                )
+            );
+        }
+
+        return result;
+    }
+
+
+    if (promotionLoginButton) {
+
+        promotionLoginButton.addEventListener(
+            "click",
+            async function () {
+
+                const password =
+                    promotionPassword.value;
+
+                if (!password) {
+
+                    promotionFeedback.textContent =
+                        "Digite a senha.";
+
+                    promotionFeedback.style.color =
+                        "#fca5a5";
+
+                    promotionPassword.focus();
+
+                    return;
+                }
+
+                promotionLoginButton.disabled =
+                    true;
+
+                promotionFeedback.textContent =
+                    "Verificando senha...";
+
+                promotionFeedback.style.color =
+                    "#93c5fd";
+
+                try {
+
+                    await postJson(
+                        "/api/promotion/login",
+                        {
+                            password: password
+                        }
+                    );
+
+                    window.location.reload();
+
+                } catch (error) {
+
+                    promotionFeedback.textContent =
+                        error.message;
+
+                    promotionFeedback.style.color =
+                        "#fca5a5";
+
+                    promotionLoginButton.disabled =
+                        false;
+                }
+            }
+        );
+
+
+        promotionPassword.addEventListener(
+            "keydown",
+            function (event) {
+
+                if (event.key === "Enter") {
+
+                    event.preventDefault();
+
+                    promotionLoginButton.click();
+                }
+            }
+        );
+    }
+
+
+    if (promotionToggleButton) {
+
+        promotionToggleButton.addEventListener(
+            "click",
+            async function () {
+
+                promotionToggleButton.disabled =
+                    true;
+
+                promotionFeedback.textContent =
+                    "Alterando promoção...";
+
+                promotionFeedback.style.color =
+                    "#93c5fd";
+
+                try {
+
+                    await postJson(
+                        "/api/promotion/toggle",
+                        {}
+                    );
+
+                    window.location.reload();
+
+                } catch (error) {
+
+                    promotionFeedback.textContent =
+                        error.message;
+
+                    promotionFeedback.style.color =
+                        "#fca5a5";
+
+                    promotionToggleButton.disabled =
+                        false;
+                }
+            }
+        );
+    }
+
+
+    if (promotionLogoutButton) {
+
+        promotionLogoutButton.addEventListener(
+            "click",
+            async function () {
+
+                promotionLogoutButton.disabled =
+                    true;
+
+                try {
+
+                    await postJson(
+                        "/api/promotion/logout",
+                        {}
+                    );
+
+                    window.location.reload();
+
+                } catch (error) {
+
+                    promotionFeedback.textContent =
+                        error.message;
+
+                    promotionFeedback.style.color =
+                        "#fca5a5";
+
+                    promotionLogoutButton.disabled =
+                        false;
+                }
+            }
+        );
+    }
+
+})();
 
 </script>
 
