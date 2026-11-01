@@ -131,8 +131,8 @@ PROMO_STATE_LOCK = (
 PLANOS_NORMAIS = {
     "prata": {
         "nome": "Acesso Prata",
-        "valor": 15.00,
-        "valor_exibicao": "15,00",
+        "valor": 10.00,
+        "valor_exibicao": "10,00",
         "descricao": "Acesso comum",
         "inclui_tivetv": False,
         "promocional": False
@@ -140,8 +140,8 @@ PLANOS_NORMAIS = {
 
     "ouro": {
         "nome": "Acesso Ouro",
-        "valor": 20.00,
-        "valor_exibicao": "20,00",
+        "valor": 15.00,
+        "valor_exibicao": "15,00",
         "descricao": "Acesso Premium",
         "inclui_tivetv": False,
         "promocional": False
@@ -159,11 +159,11 @@ PLANOS_NORMAIS = {
 PLANOS_PROMOCIONAIS = {
     "prata_trimestral": {
         "nome": "Prata Trimestral",
-        "valor": 40.00,
+        "valor": 30.00,
         "valor_exibicao": "40,00",
         "descricao": (
             "Acesso por 3 meses, "
-            "sem licença do APP TiveTV"
+            ""
         ),
         "inclui_tivetv": False,
         "promocional": True
@@ -171,11 +171,11 @@ PLANOS_PROMOCIONAIS = {
 
     "ouro_trimestral": {
         "nome": "Ouro Trimestral",
-        "valor": 50.00,
-        "valor_exibicao": "50,00",
+        "valor": 40.00,
+        "valor_exibicao": "40,00",
         "descricao": (
             "Acesso por 3 meses, "
-            "com licença do APP TiveTV"
+            ""
         ),
         "inclui_tivetv": True,
         "promocional": True
